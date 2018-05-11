@@ -10,7 +10,7 @@
   <inceptionYear>2018</inceptionYear>
   <name>${project.artifactId}</name>
   <description>code snippets for some problems when handling Exceptions in using Stream API .</description>
-  <url>https://github.com/furplag/${project.artifactId}</url>
+  <url>${developer.url}/${project.artifactId}</url>
 
   <licenses>
     <license>
