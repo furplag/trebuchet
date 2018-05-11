@@ -1,8 +1,9 @@
+# https://travis-ci.org/
 branches:
   only:
     - master
-language: java
 
+language: java
 jdk:
   - oraclejdk9
 
