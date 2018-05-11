@@ -1,0 +1,3 @@
+# https://codeclimate.com/
+exclude_paths:
+  - src/test/**/*
