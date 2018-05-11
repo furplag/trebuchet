@@ -2,6 +2,9 @@
 
 [![Build Status](https://travis-ci.org/furplag/trebuchet.svg?branch=master)](https://travis-ci.org/furplag/trebuchet)
 [![Coverage Status](https://coveralls.io/repos/github/furplag/trebuchet/badge.svg?branch=master)](https://coveralls.io/github/furplag/trebuchet?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/02fcf40271c746be8adbb6d3df04b52e)](https://www.codacy.com/app/furplag/trebuchet?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=furplag/trebuchet&amp;utm_campaign=Badge_Grade)
+[![codebeat badge](https://codebeat.co/badges/42cc12ce-7ae8-489c-bfa4-4d655159f029)](https://codebeat.co/projects/github-com-furplag-trebuchet-master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/c572835a3dffc65a2517/maintainability)](https://codeclimate.com/github/furplag/trebuchet/maintainability)
 
 code snippets for some problems when handling Exceptions in using Stream API .
 
