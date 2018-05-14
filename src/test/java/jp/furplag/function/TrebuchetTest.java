@@ -53,38 +53,38 @@ public class TrebuchetTest {
   }
 
   @Test
-  public void testThrowableConsumer() throws Exception {
+  public void testThrowableConsumer() throws Throwable {
     Trebuchet.ThrowableConsumer<Integer> isOdd = (i) -> System.out.println(i % 2 != 0 ? "odd" : "even");
     int i = 10;
     isOdd.accept(i);
     try {
       isOdd.accept(null);
       fail("must raise NullPointerException .");
-    } catch (Exception e) {
+    } catch (Throwable e) {
       assertTrue(e instanceof NullPointerException);
     }
   }
 
   @Test
-  public void testThrowableBiConsumer() throws Exception {
+  public void testThrowableBiConsumer() throws Throwable {
     Trebuchet.ThrowableBiConsumer<Integer, Integer> divider = (x, y) -> System.out.println(x / y);
     divider.accept(10, 10);
     try {
       divider.accept(null, null);
       fail("must raise NullPointerException .");
-    } catch (Exception e) {
+    } catch (Throwable e) {
       assertTrue(e instanceof NullPointerException);
     }
     try {
       divider.accept(10, 0);
       fail("must raise ArithmeticException .");
-    } catch (Exception e) {
+    } catch (Throwable e) {
       assertTrue(e instanceof ArithmeticException);
     }
   }
 
   @Test(expected = NullPointerException.class)
-  public void testThrowableFunction() throws Exception {
+  public void testThrowableFunction() throws Throwable {
     Trebuchet.ThrowableFunction<Integer, Boolean> isOdd = (i) -> (i % 2 != 0);
     assertFalse(isOdd.apply(10));
     assertTrue(isOdd.apply(1));
@@ -92,7 +92,7 @@ public class TrebuchetTest {
   }
 
   @Test
-  public void testThrowableBiFunction() throws Exception {
+  public void testThrowableBiFunction() throws Throwable {
     Trebuchet.ThrowableBiFunction<Integer, Integer, Integer> divider = (x, y) -> (x / y);
     assertEquals(1, (int) divider.apply(10, 10));
     assertEquals(2, (int) divider.apply(10, 5));
@@ -101,26 +101,26 @@ public class TrebuchetTest {
     try {
       divider.apply(null, null);
       fail("must raise NullPointerException .");
-    } catch (Exception e) {
+    } catch (Throwable e) {
       assertTrue(e instanceof NullPointerException);
     }
     try {
       divider.apply(10, 0);
       fail("must raise ArithmeticException .");
-    } catch (Exception e) {
+    } catch (Throwable e) {
       assertTrue(e instanceof ArithmeticException);
     }
   }
 
   @Test
-  public void testThrowableOperatoe() throws Exception {
+  public void testThrowableOperatoe() throws Throwable {
     Trebuchet.ThrowableOperator<Integer> twice = (x) -> (x + x);
     assertEquals(0, twice.apply(0).intValue());
     assertEquals(2, twice.apply(1).intValue());
     try {
       twice.apply(null);
       fail("must raise NullPointerException .");
-    } catch (Exception e) {
+    } catch (Throwable e) {
       assertTrue(e instanceof NullPointerException);
     }
   }
@@ -137,7 +137,7 @@ public class TrebuchetTest {
       try {
         divider.accept(i);
         expectOfOut.add(Integer.toString(10 / i));
-      } catch (Exception e) {
+      } catch (Throwable e) {
         System.err.println(e.getClass().getSimpleName());
         expectOfError.add(e.getClass().getSimpleName());
       }
@@ -164,7 +164,7 @@ public class TrebuchetTest {
       try {
         divider.accept(i, i - 1);
         expectOfOut.add(Integer.toString(i / (i - 1)));
-      } catch (Exception e) {
+      } catch (Throwable e) {
         System.err.println(e.getClass().getSimpleName());
         expectOfError.add(e.getClass().getSimpleName());
       }
@@ -189,7 +189,7 @@ public class TrebuchetTest {
       .map(i -> {
         try {
           return divider.apply(i);
-        } catch (Exception e) {}
+        } catch (Throwable e) {}
         return 0;
       }).toArray(Integer[]::new));
 
@@ -207,7 +207,7 @@ public class TrebuchetTest {
         .map(i -> {
           try {
             return divider.apply(i, i);
-          } catch (Exception e) {}
+          } catch (Throwable e) {}
           return 0;
         }).toArray(Integer[]::new));
 
@@ -224,7 +224,7 @@ public class TrebuchetTest {
       .map(i -> {
         try {
           return one.apply(i);
-        } catch (Exception e) {}
+        } catch (Throwable e) {}
         return 0;
       }).toArray(Integer[]::new));
 
