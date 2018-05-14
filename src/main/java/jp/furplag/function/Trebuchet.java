@@ -44,7 +44,7 @@ public interface Trebuchet {
      * Performs this operation on the given argument.
      *
      * @param t the input argument
-     * @throws Throwable an Throwable
+     * @throws Throwable anything thrown
      */
     void accept(T t) throws Throwable;
 
@@ -60,8 +60,8 @@ public interface Trebuchet {
       return (x) -> {
         try {
           function.accept(x);
-        } catch (Throwable e) {
-          fallen.accept(e, x);
+        } catch (Throwable t) {
+          fallen.accept(t, x);
         }
       };
     }
@@ -84,7 +84,7 @@ public interface Trebuchet {
      *
      * @param t the first input argument
      * @param u the second input argument
-     * @throws Throwable an Throwable
+     * @throws Throwable anything thrown
      */
     void accept(T t, U u) throws Throwable;
 
@@ -101,8 +101,8 @@ public interface Trebuchet {
       return (x, y) -> {
         try {
           function.accept(x, y);
-        } catch (Throwable e) {
-          fallen.accept(e, x);
+        } catch (Throwable t) {
+          fallen.accept(t, x);
         }
       };
     }
@@ -125,7 +125,7 @@ public interface Trebuchet {
      *
      * @param t the function argument
      * @return the function result
-     * @throws Throwable an Throwable
+     * @throws Throwable anything thrown
      */
     R apply(T t) throws Throwable;
 
@@ -142,8 +142,8 @@ public interface Trebuchet {
       return (x) -> {
         try {
           return function.apply(x);
-        } catch (Throwable e) {
-          return fallen.apply(e, x);
+        } catch (Throwable t) {
+          return fallen.apply(t, x);
         }
       };
     }
@@ -168,7 +168,7 @@ public interface Trebuchet {
      * @param t the first function argument
      * @param u the second function argument
      * @return the function result
-     * @throws Throwable an Throwable
+     * @throws Throwable anything thrown
      */
     R apply(T t, U u) throws Throwable;
 
@@ -186,8 +186,8 @@ public interface Trebuchet {
       return (x, y) -> {
         try {
           return function.apply(x, y);
-        } catch (Throwable e) {
-          return fallen.apply(e, x);
+        } catch (Throwable t) {
+          return fallen.apply(t, x);
         }
       };
     }
@@ -216,8 +216,8 @@ public interface Trebuchet {
       return (x) -> {
         try {
           return operator.apply(x);
-        } catch (Throwable e) {
-          return fallen.apply(e, x);
+        } catch (Throwable t) {
+          return fallen.apply(t, x);
         }
       };
     }
