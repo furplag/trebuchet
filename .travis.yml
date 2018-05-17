@@ -2,9 +2,11 @@
 branches:
   only:
     - master
+    - jdk-8
 
 language: java
 jdk:
+  - oraclejdk8
   - oraclejdk9
 
 before_install:

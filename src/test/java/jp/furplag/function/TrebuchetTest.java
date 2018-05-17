@@ -57,7 +57,7 @@ public class TrebuchetTest {
 
   @Test
   public void testSneakyThrow() throws Throwable {
-    MethodHandle sneakyThrow = MethodHandles.privateLookupIn(Trebuchet.class, MethodHandles.lookup()).findStatic(Trebuchet.class, "sneakyThrow", MethodType.methodType(void.class, Throwable.class));
+    MethodHandle sneakyThrow = MethodHandles /*.privateLookupIn(Trebuchet.class, MethodHandles.lookup())*/.lookup() .findStatic(Trebuchet.class, "sneakyThrow", MethodType.methodType(void.class, Throwable.class));
     try {
       sneakyThrow.invoke(null);
     } catch (Throwable ex) {

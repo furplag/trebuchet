@@ -38,7 +38,7 @@ public interface Trebuchet {
    * @throws E anything thrown
    */
   @SuppressWarnings({ "unchecked" })
-  private static <E extends Throwable> void sneakyThrow(final Throwable ex) throws E {
+  /*private*/ static <E extends Throwable> void sneakyThrow(final Throwable ex) throws E {
     throw (E) (ex == null ? new IllegalArgumentException("hmm, no way call me with null .") : ex);
   }
 
@@ -76,7 +76,7 @@ public interface Trebuchet {
      * @return {@link ThrowableConsumer#accept(Object) functional.accept(T)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(E, T)} if error occured
      */
     @SuppressWarnings({ "unchecked" })
-    private static <T, E extends Throwable> Consumer<T> orElse(final ThrowableConsumer<T> functional, final BiConsumer<E, T> fallen) {
+    /*private*/ static <T, E extends Throwable> Consumer<T> orElse(final ThrowableConsumer<T> functional, final BiConsumer<E, T> fallen) {
       return (t) -> {/* @formatter:off */try {functional.accept(t);} catch (Throwable ex) {fallen.accept((E) ex, t);}/* @formatter:off */};
     }
   }
@@ -118,7 +118,7 @@ public interface Trebuchet {
      * @return {@link ThrowableBiConsumer#accept(Object, Object) functional.accept(T, U)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(Throwable, T)} if error occured
      */
     @SuppressWarnings({ "unchecked" })
-    private static <T, U, E extends Throwable> BiConsumer<T, U> orElse(final ThrowableBiConsumer<T, U> functional, final BiConsumer<E, T> fallen) {
+    /*private*/ static <T, U, E extends Throwable> BiConsumer<T, U> orElse(final ThrowableBiConsumer<T, U> functional, final BiConsumer<E, T> fallen) {
       return (t, u) -> {/* @formatter:off */try {functional.accept(t, u);} catch (Throwable ex) {fallen.accept((E) ex, t);}/* @formatter:off */};
     }
   }
@@ -160,7 +160,7 @@ public interface Trebuchet {
      * @return {@link ThrowableFunction#apply(Object) functional.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
      */
     @SuppressWarnings({ "unchecked" })
-    private static <T, R, E extends Throwable> Function<T, R> orElse(final ThrowableFunction<T, R> functional, final BiFunction<E, T, R> fallen) {
+    /*private*/ static <T, R, E extends Throwable> Function<T, R> orElse(final ThrowableFunction<T, R> functional, final BiFunction<E, T, R> fallen) {
       return (t) -> {/* @formatter:off */try {return functional.apply(t);} catch (Throwable ex) {return fallen.apply((E) ex, t);}/* @formatter:off */};
     }
   }
@@ -205,7 +205,7 @@ public interface Trebuchet {
      * @return {@link ThrowableBiFunction#apply(Object, Object) functional.apply(T, U)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(Throwable, T)} if error occured
      */
     @SuppressWarnings({ "unchecked" })
-    private static <T, U, R, E extends Throwable> BiFunction<T, U, R> orElse(final ThrowableBiFunction<T, U, R> functional, final BiFunction<E, T, R> fallen) {
+    /*private*/ static <T, U, R, E extends Throwable> BiFunction<T, U, R> orElse(final ThrowableBiFunction<T, U, R> functional, final BiFunction<E, T, R> fallen) {
       return (t, u) -> {/* @formatter:off */try {return functional.apply(t, u);} catch (Throwable ex) {return fallen.apply((E) ex, t);}/* @formatter:off */};
     }
   }
@@ -245,7 +245,7 @@ public interface Trebuchet {
      * @return {@link ThrowableOperator#apply(Object) functional.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
      */
     @SuppressWarnings({ "unchecked" })
-    private static <T, E extends Throwable> UnaryOperator<T> orElse(final ThrowableOperator<T> functional, final BiFunction<E, T, T> fallen) {
+    /*private*/ static <T, E extends Throwable> UnaryOperator<T> orElse(final ThrowableOperator<T> functional, final BiFunction<E, T, T> fallen) {
       return (t) -> {/* @formatter:off */try {return functional.apply(t);} catch (Throwable ex) {return fallen.apply((E) ex, t);}/* @formatter:off */};
     }
   }
