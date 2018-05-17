@@ -33,6 +33,7 @@ public interface Trebuchet {
   /**
    * the fork of {@code lombok.Lombok.sneakyThrow(Throwable)} .
    *
+   * @param <E> anything thrown
    * @param ex anything thrown
    * @throws E anything thrown
    */
@@ -198,6 +199,7 @@ public interface Trebuchet {
      * @param <T> the type of the first argument to the function
      * @param <U> the type of the second argument to the function
      * @param <R> the type of the result of the function
+     * @param <E> anything thrown
      * @param functional {@link ThrowableBiFunction}
      * @param fallen {@link BiFunction}
      * @return {@link ThrowableBiFunction#apply(Object, Object) functional.apply(T, U)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(Throwable, T)} if error occured
@@ -237,6 +239,7 @@ public interface Trebuchet {
      * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
      *
      * @param <T> the type of the I/O to the function
+     * @param <E> anything thrown
      * @param functional {@link ThrowableOperator}
      * @param fallen {@link BiFunction}
      * @return {@link ThrowableOperator#apply(Object) functional.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
@@ -251,11 +254,12 @@ public interface Trebuchet {
    * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
    *
    * @param <T> the type of the input to the function
+   * @param <E> anything thrown
    * @param functional {@link ThrowableConsumer}
    * @param fallen {@link BiConsumer}
    * @return {@link ThrowableConsumer#accept(Object) functional.accept(T)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(E, T)} if error occured
    */
-  static <T> Consumer<T> orElse(final ThrowableConsumer<T> functional, final BiConsumer<Throwable, T> fallen) {
+  static <T, E extends Throwable> Consumer<T> orElse(final ThrowableConsumer<T> functional, final BiConsumer<E, T> fallen) {
     return ThrowableConsumer.orElse(functional, fallen);
   }
 
@@ -264,11 +268,12 @@ public interface Trebuchet {
    *
    * @param <T> the type of the first argument to the function
    * @param <U> the type of the second argument to the function
+   * @param <E> anything thrown
    * @param functional {@link ThrowableBiConsumer}
    * @param fallen {@link BiConsumer}
    * @return {@link ThrowableBiConsumer#accept(Object, Object) functional.accept(T, U)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(E, T)} if error occured
    */
-  static <T, U> BiConsumer<T, U> orElse(final ThrowableBiConsumer<T, U> functional, final BiConsumer<Throwable, T> fallen) {
+  static <T, U, E extends Throwable> BiConsumer<T, U> orElse(final ThrowableBiConsumer<T, U> functional, final BiConsumer<E, T> fallen) {
     return ThrowableBiConsumer.orElse(functional, fallen);
   }
 
@@ -277,11 +282,12 @@ public interface Trebuchet {
    *
    * @param <T> the type of the input to the function
    * @param <R> the type of the result of the function
+   * @param <E> anything thrown
    * @param functional {@link ThrowableFunction}
    * @param fallen {@link BiFunction}
    * @return {@link ThrowableFunction#apply(Object) functional.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(Throwable, T)} if error occured
    */
-  static <T, R> Function<T, R> orElse(final ThrowableFunction<T, R> functional, final BiFunction<Throwable, T, R> fallen) {
+  static <T, R, E extends Throwable> Function<T, R> orElse(final ThrowableFunction<T, R> functional, final BiFunction<E, T, R> fallen) {
     return ThrowableFunction.orElse(functional, fallen);
   }
 
@@ -291,11 +297,12 @@ public interface Trebuchet {
    * @param <T> the type of the first argument to the function
    * @param <U> the type of the second argument to the function
    * @param <R> the type of the result of the function
+   * @param <E> anything thrown
    * @param functional {@link ThrowableBiFunction}
    * @param fallen {@link BiFunction}
    * @return {@link ThrowableBiFunction#apply(Object, Object) functional.apply(T, U)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
    */
-  static <T, U, R> BiFunction<T, U, R> orElse(final ThrowableBiFunction<T, U, R> functional, final BiFunction<Throwable, T, R> fallen) {
+  static <T, U, R, E extends Throwable> BiFunction<T, U, R> orElse(final ThrowableBiFunction<T, U, R> functional, final BiFunction<E, T, R> fallen) {
     return ThrowableBiFunction.orElse(functional, fallen);
   }
 
@@ -303,11 +310,12 @@ public interface Trebuchet {
    * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
    *
    * @param <T> the type of the input to the operator
+   * @param <E> anything thrown
    * @param functional {@link ThrowableOperator}
    * @param fallen {@link BiFunction}
    * @return {@link ThrowableOperator#apply(Object) functional.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(Throwable, T)} if error occured
    */
-  static <T> UnaryOperator<T> orElse(final ThrowableOperator<T> functional, final BiFunction<Throwable, T, T> fallen) {
+  static <T, E extends Throwable> UnaryOperator<T> orElse(final ThrowableOperator<T> functional, final BiFunction<E, T, T> fallen) {
     return ThrowableOperator.orElse(functional, fallen);
   }
 }
