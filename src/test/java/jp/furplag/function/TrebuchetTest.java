@@ -61,7 +61,7 @@ public class TrebuchetTest {
     try {
       sneakyThrow.invoke(null);
     } catch (Throwable ex) {
-      assertTrue(ex instanceof NullPointerException);
+      assertTrue(ex instanceof IllegalArgumentException);
     }
     final Throwable[] throwable = {null};
     Trebuchet.orElse((String x) -> {x.toLowerCase();}, (ex, x) -> throwable[0] = ex).accept("NOPE");
