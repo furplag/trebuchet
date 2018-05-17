@@ -36,15 +36,15 @@ public class SuppressorTest {
   @Test
   public void testOrNull() {
     Trebuchet.ThrowableFunction<Integer, Integer> divider = (x) -> (10 / x);
-    Integer[] expect = Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Trebuchet.orElse(divider, (e, x) -> null).apply(i)).toArray(Integer[]::new);
-    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Suppressor.orNull(i, divider)).toArray(Integer[]::new));
+    Integer[] expect = Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> Trebuchet.orElse(divider, (e, x) -> null).apply(i)).toArray(Integer[]::new);
+    assertArrayEquals(expect, Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> Suppressor.orNull(i, divider)).toArray(Integer[]::new));
   }
 
   @Test
   public void testOrNullBi() {
     Trebuchet.ThrowableBiFunction<Integer, Integer, Integer> divider = (x, y) -> (x / y);
-    Integer[] expect = Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Trebuchet.orElse(divider, (e, x) -> null).apply(i, i)).toArray(Integer[]::new);
-    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Suppressor.orNull(i, i, divider)).toArray(Integer[]::new));
+    Integer[] expect = Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> Trebuchet.orElse(divider, (e, x) -> null).apply(i, i)).toArray(Integer[]::new);
+    assertArrayEquals(expect, Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> Suppressor.orNull(i, i, divider)).toArray(Integer[]::new));
   }
 
   @Test
@@ -52,7 +52,7 @@ public class SuppressorTest {
     final Set<Integer> expect = new HashSet<>();
     final Set<Integer> actual = new HashSet<>();
     Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).forEach(i -> Trebuchet.orElse((Integer x) -> expect.add(x * 2), (ex, e) -> {}).accept(i));
-    Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).forEach(i -> Suppressor.suppress(i, (x) -> actual.add(x * 2)));
+    Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).forEach(i -> Suppressor.suppress(i, (x) -> actual.add(x * 2)));
     assertArrayEquals(expect.stream().sorted(Comparator.naturalOrder()).toArray(Integer[]::new), actual.stream().sorted(Comparator.naturalOrder()).toArray(Integer[]::new));
   }
 
@@ -61,14 +61,14 @@ public class SuppressorTest {
     final Set<Integer> expect = new HashSet<>();
     final Set<Integer> actual = new HashSet<>();
     Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).forEach(i -> Trebuchet.orElse((Integer x, Set<Integer> y) -> y.add(x * 2), (ex, e) -> {}).accept(i, expect));
-    Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).forEach(i -> Suppressor.suppress(i, actual, (x, y) -> y.add(x * 2)));
+    Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).forEach(i -> Suppressor.suppress(i, actual, (x, y) -> y.add(x * 2)));
     assertArrayEquals(expect.stream().sorted(Comparator.naturalOrder()).toArray(Integer[]::new), actual.stream().sorted(Comparator.naturalOrder()).toArray(Integer[]::new));
   }
 
   @Test
   public void testNope() {
     Trebuchet.ThrowableOperator<Integer> divider = (x) -> (10 / x);
-    Integer[] expect = Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Trebuchet.orElse(divider, (e, x) -> x).apply(i)).toArray(Integer[]::new);
-    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Suppressor.nope(i, divider)).toArray(Integer[]::new));
+    Integer[] expect = Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> Trebuchet.orElse(divider, (e, x) -> x).apply(i)).toArray(Integer[]::new);
+    assertArrayEquals(expect, Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> Suppressor.nope(i, divider)).toArray(Integer[]::new));
   }
 }

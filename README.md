@@ -6,7 +6,7 @@
 [![codebeat badge](https://codebeat.co/badges/42cc12ce-7ae8-489c-bfa4-4d655159f029)](https://codebeat.co/projects/github-com-furplag-trebuchet-master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/c572835a3dffc65a2517/maintainability)](https://codeclimate.com/github/furplag/trebuchet/maintainability)
 
-code snippets for some problems when handling Exceptions in using Stream API .
+code snippets for some problems when handling java.lang.Throwables in using Stream API .
 
 ## Getting Start
 
@@ -29,7 +29,7 @@ Add the following snippet to any project's pom that depends on your project
   <dependency>
     <groupId>jp.furplag.sandbox</groupId>
     <artifactId>trebuchet</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
   </dependency>
 </dependencies>
 ```
@@ -77,6 +77,9 @@ Add the following snippet to any project's pom that depends on your project
     // no, not need. That's it.
     System.out.println(Arrays.toString(
         Arrays.stream(vars).map(Trebuchet.orElse((x) -> x / (x - 1), (ex, x) -> null)).toArray(Integer[]::new)
+    ));
+    System.out.println(Arrays.toString(
+        Arrays.stream(vars).map((i) -> Suppressor.orNull(i, (x) -> x / (x - 1))).toArray(Integer[]::new)
     ));
   }
 ```
