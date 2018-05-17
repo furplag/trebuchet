@@ -38,7 +38,7 @@ public interface Trebuchet {
    */
   @SuppressWarnings({ "unchecked" })
   private static <E extends Throwable> void sneakyThrow(final Throwable ex) throws E {
-    throw (E) (ex == null ? new NullPointerException("ex") : ex);
+    throw (E) (ex == null ? new IllegalArgumentException("hmm, no way call me with null .") : ex);
   }
 
   /**
