@@ -20,6 +20,9 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
@@ -50,6 +53,23 @@ public class TrebuchetTest {
   public void test() {
     assertTrue(new Trebuchet() {} instanceof Trebuchet);
     assertTrue(Trebuchet.class.isAssignableFrom(new Trebuchet() {}.getClass()));
+  }
+
+  @Test
+  public void testSneakyThrow() throws Throwable {
+    MethodHandle sneakyThrow = MethodHandles.privateLookupIn(Trebuchet.class, MethodHandles.lookup()).findStatic(Trebuchet.class, "sneakyThrow", MethodType.methodType(void.class, Throwable.class));
+    try {
+      sneakyThrow.invoke(null);
+    } catch (Throwable ex) {
+      assertTrue(ex instanceof NullPointerException);
+    }
+    final Throwable[] throwable = {null};
+    Trebuchet.orElse((String x) -> {x.toLowerCase();}, (ex, x) -> throwable[0] = ex).accept("NOPE");
+    assertNull(throwable[0]);
+    Trebuchet.orElse((String x) -> {x.toLowerCase();}, (ex, x) -> throwable[0] = ex).accept(null);
+    assertTrue(throwable[0] instanceof NullPointerException);
+    Trebuchet.orElse((Integer x) -> {@SuppressWarnings("unused") int test = x / x;}, (ex, x) -> throwable[0] = ex).accept(Integer.valueOf(0));
+    assertTrue(throwable[0] instanceof ArithmeticException);
   }
 
   @Test
@@ -113,7 +133,7 @@ public class TrebuchetTest {
   }
 
   @Test
-  public void testThrowableOperatoe() throws Throwable {
+  public void testThrowableOperator() throws Throwable {
     Trebuchet.ThrowableOperator<Integer> twice = (x) -> (x + x);
     assertEquals(0, twice.apply(0).intValue());
     assertEquals(2, twice.apply(1).intValue());
