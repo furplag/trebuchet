@@ -19,6 +19,8 @@ package jp.furplag.function.suppress;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
 import org.junit.Test;
@@ -40,6 +42,15 @@ public class SuppressOperatorTest {
     assertArrayEquals(expect, Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> SuppressOperator.tryOut(i,  ((Function<Integer, Integer>) (x) -> (10 / x)))).toArray(Integer[]::new));
     assertArrayEquals(expect, Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> SuppressOperator.tryOut(i,  ((Trebuchet.ThrowableFunction<Integer, Integer>) (x) -> (10 / x)))).toArray(Integer[]::new));
     assertArrayEquals(expect, Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> SuppressOperator.tryOut(i, divider)).toArray(Integer[]::new));
+  }
+
+  @Test
+  public void testTtyOutBi() {
+    Trebuchet.ThrowableBinaryOperator<Integer> divider = (x, y) -> (x / y);
+    Integer[] expect = Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> Trebuchet.orElse(divider, (e, x) -> x).apply(i, i)).toArray(Integer[]::new);
+    assertArrayEquals(expect, Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> SuppressOperator.tryOut(i, i, (BiFunction<Integer, Integer, Integer>) (x, y) -> (x / y))).toArray(Integer[]::new));
+    assertArrayEquals(expect, Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> SuppressOperator.tryOut(i, i, (BinaryOperator<Integer>) (x, y) -> (x / y))).toArray(Integer[]::new));
+    assertArrayEquals(expect, Arrays.stream(new Integer[] { 0, 1, 2, 3, 4, null }).map(i -> SuppressOperator.tryOut(i, i, divider)).toArray(Integer[]::new));
   }
 
 }
