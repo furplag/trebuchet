@@ -26,7 +26,10 @@ import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import org.junit.After;
 import org.junit.Before;
@@ -134,7 +137,7 @@ public class TrebuchetTest {
 
   @Test
   public void testThrowableOperator() throws Throwable {
-    Trebuchet.ThrowableOperator<Integer> twice = (x) -> (x + x);
+    Trebuchet.ThrowableUnaryOperator<Integer> twice = (x) -> (x + x);
     assertEquals(0, twice.apply(0).intValue());
     assertEquals(2, twice.apply(1).intValue());
     try {
@@ -142,6 +145,27 @@ public class TrebuchetTest {
       fail("must raise NullPointerException .");
     } catch (Throwable e) {
       assertTrue(e instanceof NullPointerException);
+    }
+  }
+
+  @Test
+  public void testThrowableBinaryOperator() throws Throwable {
+    Trebuchet.ThrowableBinaryOperator<Integer> divider = (x, y) -> (x / y);
+    assertEquals(1, (int) divider.apply(10, 10));
+    assertEquals(2, (int) divider.apply(10, 5));
+    assertEquals(3, (int) divider.apply(10, 3));
+    assertEquals(0, (int) divider.apply(0, 4));
+    try {
+      divider.apply(null, null);
+      fail("must raise NullPointerException .");
+    } catch (Throwable e) {
+      assertTrue(e instanceof NullPointerException);
+    }
+    try {
+      divider.apply(10, 0);
+      fail("must raise ArithmeticException .");
+    } catch (Throwable e) {
+      assertTrue(e instanceof ArithmeticException);
     }
   }
 
@@ -219,7 +243,7 @@ public class TrebuchetTest {
 
   @Test
   public void testApplyBi() {
-    Trebuchet.ThrowableBiFunction<Integer, Integer, Integer> divider = (x, y) -> (x / (y - 1));
+    BiFunction<Integer, Integer, Integer> divider = (x, y) -> (x / (y - 1));
     Integer[] expect = {0, 0, 2, 1, 1, 0};
     // @formatter:off
     assertArrayEquals(expect,
@@ -237,7 +261,7 @@ public class TrebuchetTest {
 
   @Test
   public void testStraightApply() {
-    Trebuchet.ThrowableOperator<Integer> one = (i) -> (i / i);
+    UnaryOperator<Integer> one = (i) -> (i / i);
     Integer[] expect = {0, 1, 1, 1, 1, 0};
     // @formatter:off
     assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null})
@@ -249,6 +273,24 @@ public class TrebuchetTest {
       }).toArray(Integer[]::new));
 
     assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Trebuchet.orElse(one, (e, x) -> 0).apply(i)).toArray(Integer[]::new));
+    // @formatter:on
+  }
+
+  @Test
+  public void testStraightApplyBi() {
+    BinaryOperator<Integer> divider = (x, y) -> (x / (y - 1));
+    Integer[] expect = {0, 0, 2, 1, 1, 0};
+    // @formatter:off
+    assertArrayEquals(expect,
+      Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null})
+        .map(i -> {
+          try {
+            return divider.apply(i, i);
+          } catch (Throwable e) {}
+          return 0;
+        }).toArray(Integer[]::new));
+
+    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Trebuchet.orElse(divider, (e, x) -> 0).apply(i, i)).toArray(Integer[]::new));
     // @formatter:on
   }
 }
