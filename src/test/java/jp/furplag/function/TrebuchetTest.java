@@ -136,40 +136,6 @@ public class TrebuchetTest {
   }
 
   @Test
-  public void testThrowableOperator() throws Throwable {
-    Trebuchet.ThrowableUnaryOperator<Integer> twice = (x) -> (x + x);
-    assertEquals(0, twice.apply(0).intValue());
-    assertEquals(2, twice.apply(1).intValue());
-    try {
-      twice.apply(null);
-      fail("must raise NullPointerException .");
-    } catch (Throwable e) {
-      assertTrue(e instanceof NullPointerException);
-    }
-  }
-
-  @Test
-  public void testThrowableBinaryOperator() throws Throwable {
-    Trebuchet.ThrowableBinaryOperator<Integer> divider = (x, y) -> (x / y);
-    assertEquals(1, (int) divider.apply(10, 10));
-    assertEquals(2, (int) divider.apply(10, 5));
-    assertEquals(3, (int) divider.apply(10, 3));
-    assertEquals(0, (int) divider.apply(0, 4));
-    try {
-      divider.apply(null, null);
-      fail("must raise NullPointerException .");
-    } catch (Throwable e) {
-      assertTrue(e instanceof NullPointerException);
-    }
-    try {
-      divider.apply(10, 0);
-      fail("must raise ArithmeticException .");
-    } catch (Throwable e) {
-      assertTrue(e instanceof ArithmeticException);
-    }
-  }
-
-  @Test
   public void testAccept() {
     // @formatter:off
     final StringJoiner expectOfOut = new StringJoiner(System.getProperty("line.separator", "\n"), "", System.getProperty("line.separator", "\n"));

@@ -18,12 +18,8 @@ package jp.furplag.function;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
-import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 /**
  * code snippets for some problems when handling java.lang.Throwables in using Stream API .
@@ -123,33 +119,6 @@ public interface Trebuchet {
   }
 
   /**
-   * {@link java.util.function.BinaryOperator BinaryOperator} now get enable to throw {@link Throwable} .
-   *
-   * @author furplag
-   *
-   * @param <T> the type of the first argument to the function
-   * @see java.util.function.BinaryOperator
-   * @see ThrowableBiFunction
-   */
-  @FunctionalInterface
-  public interface ThrowableBinaryOperator<T> extends BinaryOperator<T>, ThrowableBiFunction<T, T, T> {
-
-    /**
-     * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-     *
-     * @param <T> the type of the first argument to the function
-     * @param <E> anything thrown
-     * @param functional {@link ThrowableBinaryOperator}
-     * @param fallen {@link BiFunction}
-     * @return {@link ThrowableBinaryOperator#apply(Object, Object) functional.apply(T, U)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
-     */
-    @SuppressWarnings({ "unchecked" })
-    private static <T, E extends Throwable> BinaryOperator<T> orElse(final ThrowableBinaryOperator<T> functional, final BiFunction<E, T, T> fallen) {
-      return (t1, t2) -> {/* @formatter:off */try {return functional.apply(t1, t2);} catch (Throwable ex) {return fallen.apply((E) ex, t1);}/* @formatter:off */};
-    }
-  }
-
-  /**
    * {@link java.util.function.Consumer Consumer} now get enable to throw {@link Throwable} .
    *
    * @author furplag
@@ -233,116 +202,6 @@ public interface Trebuchet {
   }
 
   /**
-   * {@link java.util.function.Function Function} now get enable to throw {@link Throwable} .
-   *
-   * @author furplag
-   *
-   * @param <T> the type of the input to the function
-   * @see java.util.function.Function
-   */
-  @FunctionalInterface
-  public interface ThrowablePredicate<T> extends Predicate<T> {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    default boolean test(T t) {/* @formatter:off */try {return test0(t);} catch (Throwable ex) {sneakyThrow(ex);} return false;/* @formatter:on */}
-
-    /**
-     * Evaluates this predicate on the given argument.
-     *
-     * @param t the input argument
-     * @return {@code true} if the input argument matches the predicate,
-     * otherwise {@code false}
-     */
-    boolean test0(T t) throws Throwable;
-
-    /**
-     * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-     *
-     * @param <T> the type of the input to the function
-     * @param <E> anything thrown
-     * @param functional {@link ThrowablePredicate}
-     * @param fallen {@link BiPredicate}
-     * @return {@link ThrowablePredicate#test(Object) functional.test(T)} if done it normally, or {@link BiPredicate#apply(Object, Object) fallen.test(E, T)} if error occured
-     */
-    @SuppressWarnings({ "unchecked" })
-    private static <T, E extends Throwable> Predicate<T> orElse(final ThrowablePredicate<T> functional, final BiPredicate<E, T> fallen) {
-      return (t) -> {/* @formatter:off */try {return functional.test(t);} catch (Throwable ex) {return fallen.test((E) ex, t);}/* @formatter:off */};
-    }
-  }
-
-  /**
-   * {@link java.util.function.Function Function} now get enable to throw {@link Throwable} .
-   *
-   * @author furplag
-   *
-   * @param <T> the type of the input to the function
-   * @see java.util.function.Function
-   */
-  @FunctionalInterface
-  public interface ThrowableBiPredicate<T, U> extends BiPredicate<T, U> {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    default boolean test(T t, U u) {/* @formatter:off */try {return test0(t, u);} catch (Throwable ex) {sneakyThrow(ex);} return false;/* @formatter:on */}
-
-    /**
-     * Evaluates this predicate on the given arguments.
-     *
-     * @param t the first input argument
-     * @param u the second input argument
-     * @return {@code true} if the input arguments match the predicate,
-     * otherwise {@code false}
-     */
-    boolean test0(T t, U u) throws Throwable;
-
-    /**
-     * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-     *
-     * @param <T> the type of the input to the function
-     * @param <E> anything thrown
-     * @param functional {@link ThrowableBiPredicate}
-     * @param fallen {@link BiPredicate}
-     * @return {@link ThrowableBiPredicate#test(Object, Object) functional.test(T, U)} if done it normally, or {@link BiPredicate#apply(Object, Object) fallen.test(E, T)} if error occured
-     */
-    @SuppressWarnings({ "unchecked" })
-    private static <T, U, E extends Throwable> BiPredicate<T, U> orElse(final ThrowableBiPredicate<T, U> functional, final BiPredicate<E, T> fallen) {
-      return (t, u) -> {/* @formatter:off */try {return functional.test(t, u);} catch (Throwable ex) {return fallen.test((E) ex, t);}/* @formatter:off */};
-    }
-  }
-
-  /**
-   * {@link java.util.function.UnaryOperator UnaryOperator} now get enable to throw {@link Throwable} .
-   *
-   * @author furplag
-   *
-   * @param <T> the type of the input and output of the operator
-   * @see java.util.function.UnaryOperator
-   * @see ThrowableFunction
-   */
-  @FunctionalInterface
-  public interface ThrowableUnaryOperator<T> extends UnaryOperator<T>, ThrowableFunction<T, T> {
-
-    /**
-     * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-     *
-     * @param <T> the type of the I/O to the function
-     * @param <E> anything thrown
-     * @param functional {@link ThrowableUnaryOperator}
-     * @param fallen {@link BiFunction}
-     * @return {@link ThrowableUnaryOperator#apply(Object) functional.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
-     */
-    @SuppressWarnings({ "unchecked" })
-    private static <T, E extends Throwable> UnaryOperator<T> orElse(final ThrowableUnaryOperator<T> functional, final BiFunction<E, T, T> fallen) {
-      return (t) -> {/* @formatter:off */try {return functional.apply(t);} catch (Throwable ex) {return fallen.apply((E) ex, t);}/* @formatter:off */};
-    }
-  }
-
-  /**
    * the fork of {@code lombok.Lombok.sneakyThrow(Throwable)} .
    *
    * @param <E> anything thrown
@@ -386,19 +245,6 @@ public interface Trebuchet {
   /**
    * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
    *
-   * @param <T> the type of the input to the operator
-   * @param <E> anything thrown
-   * @param functional {@link BinaryOperator}
-   * @param fallen {@link BiFunction}
-   * @return {@link BinaryOperator#apply(Object, Object) functional.apply(T, T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
-   */
-  static <T, E extends Throwable> BinaryOperator<T> orElse(final BinaryOperator<T> functional, final BiFunction<E, T, T> fallen) {
-    return ThrowableBinaryOperator.orElse(functional::apply, fallen);
-  }
-
-  /**
-   * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-   *
    * @param <T> the type of the input to the function
    * @param <E> anything thrown
    * @param functional {@link Consumer}
@@ -422,45 +268,4 @@ public interface Trebuchet {
   static <T, R, E extends Throwable> Function<T, R> orElse(final Function<T, R> functional, final BiFunction<E, T, R> fallen) {
     return ThrowableFunction.orElse(functional::apply, fallen);
   }
-
-  /**
-   * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-   *
-   * @param <T> the type of the input to the operator
-   * @param <E> anything thrown
-   * @param functional {@link UnaryOperator}
-   * @param fallen {@link BiFunction}
-   * @return {@link UnaryOperator#apply(Object) functional.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
-   */
-  static <T, E extends Throwable> UnaryOperator<T> orElse(final UnaryOperator<T> functional, final BiFunction<E, T, T> fallen) {
-    return ThrowableUnaryOperator.orElse(functional::apply, fallen);
-  }
-
-  /**
-   * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-   *
-   * @param <T> the type of the input to the operator
-   * @param <E> anything thrown
-   * @param functional {@link Predicate}
-   * @param fallen {@link BiPredicate}
-   * @return {@link Predicate#test(Object) functional.test(T)} if done it normally, or {@link BiPredicate#test(Object, Object) fallen.test(E, T)} if error occured
-   */
-  static <T, E extends Throwable> Predicate<T> orElse(final Predicate<T> functional, final BiPredicate<E, T> fallen) {
-    return ThrowablePredicate.orElse(functional::test, fallen);
-  }
-
-  /**
-   * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-   *
-   * @param <T> the type of the first argument to the function
-   * @param <U> the type of the second argument to the function
-   * @param <E> anything thrown
-   * @param functional {@link BiPredicate}
-   * @param fallen {@link BiPredicate}
-   * @return {@link BiPredicate#test(Object, Object) functional.test(T, U)} if done it normally, or {@link BiPredicate#test(Object, Object) fallen.test(E, T)} if error occured
-   */
-  static <T, U, E extends Throwable> BiPredicate<T, U> orElse(final BiPredicate<T, U> functional, final BiPredicate<E, T> fallen) {
-    return ThrowableBiPredicate.orElse(functional::test, fallen);
-  }
-
 }
