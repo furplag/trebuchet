@@ -22,7 +22,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>jp.furplag.sandbox</groupId>
   <artifactId>trebuchet</artifactId>
-  <version>0.9.1-Java8</version>
+  <version>0.9.2-Java8</version>
   <packaging>jar</packaging>
   <inceptionYear>2018</inceptionYear>
   <name>${project.artifactId}</name>
@@ -113,7 +113,18 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.0.0</version>
+        <configuration>
+          <locale>en_US</locale>
+          <author>${developer.name}</author>
+          <extension>true</extension>
+          <bottom>${javadoc.bottom}</bottom>
+          <additionalJOptions>
+            <additionalJOption>-J-Duser.language=en</additionalJOption>
+            <additionalJOption>-J-Duse.country=US</additionalJOption>
+            <additionalparam>-Xdoclint:none</additionalparam>
+          </additionalJOptions>
+        </configuration>
         <executions>
           <execution>
             <id>attach-javadocs</id>

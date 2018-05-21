@@ -16,15 +16,13 @@
 
 package jp.furplag.function;
 
-import jp.furplag.function.Trebuchet.ThrowableBiConsumer;
-import jp.furplag.function.Trebuchet.ThrowableBiFunction;
-import jp.furplag.function.Trebuchet.ThrowableConsumer;
-import jp.furplag.function.Trebuchet.ThrowableFunction;
-import jp.furplag.function.Trebuchet.ThrowableOperator;
-
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
- * code snippets for some problems when handling java.lang.Throwables in using Stream API .
+ * suppressing to raise any exceptions in lambda expression .
  *
  * @author furplag
  *
@@ -32,66 +30,59 @@ import jp.furplag.function.Trebuchet.ThrowableOperator;
 public interface Suppressor {
 
   /**
-   * rollback to original value when the function throws exception .
+   * fallback to default value when the function throws exception .
    *
-   * @param <T> the type of the input to the function
-   * @param t the value of the input to the function
-   * @param functional {@link ThrowableOperator}
-   * @return the result of {@link ThrowableOperator#apply(Object) functional.apply(t)} if done it normally, or t if error occured
-   */
-  static <T> T nope(final T t, final ThrowableOperator<T> functional) {
-    return Trebuchet.orElse(functional, (ex, x) -> x).apply(t);
-  }
-
-  /**
-   * fallback to null when the function throws exception .
-   *
-   * @param <T> the type of the input to the function
+   * @param <T> the type of the first argument to the function
    * @param <R> the type of the result of the function
-   * @param t the value of the input to the function
-   * @param functional {@link ThrowableFunction}
-   * @return the result of {@link ThrowableFunction#apply(Object) functional.apply(t)} if done it normally, or null if error occured
+   * @param t the first function argument
+   * @param functional {@link Function}
+   * @param fallbackDefault default value for fallback
+   * @return the result of {@link Function#apply(Object) functional.apply(t)} if done it normally, or fallbackDefault if error occured
    */
-  static <T, R> R orNull(final T t, final ThrowableFunction<T, R> functional) {
-    return Trebuchet.orElse(functional, (ex, x) -> null).apply(t);
+  static <T, R> R orElse(final T t, final Function<T, R> functional, final R fallbackDefault) {
+    return Trebuchet.orElse(functional, (ex, e) -> fallbackDefault).apply(t);
   }
 
   /**
-   * fallback to null when the function throws exception .
+   * fallback to default value when the function throws exception .
+   *
+   * @param <T> the type of the first argument to the function
+   * @param t1 the first function argument
+   * @param t2 the second function argument
+   * @param functional {@link BinaryOperator}
+   * @param fallbackDefault default value for fallback
+   * @return the result of {@link BinaryOperator#apply(Object, Object) functional.apply(t1, t2)} if done it normally, or fallbackDefault if error occured
+   */
+  static <T> T orElse(final T t1, final T t2, final BinaryOperator<T> functional, final T fallbackDefault) {
+    return Trebuchet.orElse(functional, (ex, e) -> fallbackDefault).apply(t1, t2);
+  }
+
+  /**
+   * fallback to default value when the function throws exception .
    *
    * @param <T> the type of the first argument to the function
    * @param <U> the type of the second argument to the function
    * @param <R> the type of the result of the function
    * @param t the first function argument
    * @param u the second function argument
-   * @param functional {@link ThrowableFunction}
-   * @return the result of {@link ThrowableBiFunction#apply(Object, Object) functional.apply(t, u)} if done it normally, or null if error occured
+   * @param functional {@link BiFunction}
+   * @param fallbackDefault default value for fallback
+   * @return the result of {@link BiFunction#apply(Object, Object) functional.apply(t, u)} if done it normally, or fallbackDefault if error occured
    */
-  static <T, U, R> R orNull(final T t, final U u, final ThrowableBiFunction<T, U, R> functional) {
-    return Trebuchet.orElse(functional, (ex, x) -> null).apply(t, u);
+  static <T, U, R> R orElse(final T t, final U u, final BiFunction<T, U, R> functional, final R fallbackDefault) {
+    return Trebuchet.orElse(functional, (ex, e) -> fallbackDefault).apply(t, u);
   }
 
   /**
-   * mute out any exceptions whether the function throws it .
-   *
-   * @param <T> the type of the input to the function
-   * @param t the value of the input to the function
-   * @param functional {@link ThrowableConsumer}
-   */
-  static <T> void suppress(final T t, final ThrowableConsumer<T> functional) {
-    Trebuchet.orElse(functional, (ex, x) -> /* @formatter:off */{/* do nothing . */}/* @formatter:on */).accept(t);
-  }
-
-  /**
-   * mute out any exceptions whether the function throws it .
+   * fallback to default value when the function throws exception .
    *
    * @param <T> the type of the first argument to the function
-   * @param <U> the type of the second argument to the function
    * @param t the first function argument
-   * @param u the second function argument
-   * @param functional {@link ThrowableBiConsumer}
+   * @param functional {@link UnaryOperator}
+   * @param fallbackDefault default value for fallback
+   * @return the result of {@link UnaryOperator#apply(Object) functional.apply(t)} if done it normally, or fallbackDefault if error occured
    */
-  static <T, U> void suppress(final T t, final U u, final ThrowableBiConsumer<T, U> functional) {
-    Trebuchet.orElse(functional, (ex, x) -> /* @formatter:off */{/* do nothing . */}/* @formatter:on */).accept(t, u);
+  static <T> T orElse(final T t, final UnaryOperator<T> functional, final T fallbackDefault) {
+    return Trebuchet.orElse(functional, (ex, e) -> fallbackDefault).apply(t);
   }
 }
