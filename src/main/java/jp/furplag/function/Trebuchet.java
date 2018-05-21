@@ -265,7 +265,7 @@ public interface Trebuchet {
      * @param <E> anything thrown
      * @param functional {@link ThrowablePredicate}
      * @param fallen {@link BiPredicate}
-     * @return {@link ThrowablePredicate#test(Object) functional.test(T)} if done it normally, or {@link BiPredicate#apply(Object, Object) fallen.test(E, T)} if error occured
+     * @return {@link ThrowablePredicate#test(Object) functional.test(T)} if done it normally, or {@link BiPredicate#test(Object, Object) fallen.test(E, T)} if error occured
      */
     @SuppressWarnings({ "unchecked" })
     private static <T, E extends Throwable> Predicate<T> orElse(final ThrowablePredicate<T> functional, final BiPredicate<E, T> fallen) {
@@ -307,7 +307,7 @@ public interface Trebuchet {
      * @param <E> anything thrown
      * @param functional {@link ThrowableBiPredicate}
      * @param fallen {@link BiPredicate}
-     * @return {@link ThrowableBiPredicate#test(Object, Object) functional.test(T, U)} if done it normally, or {@link BiPredicate#apply(Object, Object) fallen.test(E, T)} if error occured
+     * @return {@link ThrowableBiPredicate#test(Object, Object) functional.test(T, U)} if done it normally, or {@link BiPredicate#test(Object, Object) fallen.test(E, T)} if error occured
      */
     @SuppressWarnings({ "unchecked" })
     private static <T, U, E extends Throwable> BiPredicate<T, U> orElse(final ThrowableBiPredicate<T, U> functional, final BiPredicate<E, T> fallen) {
