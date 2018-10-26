@@ -3,10 +3,9 @@
   <groupId>jp.furplag.sandbox</groupId>
   <artifactId>trebuchet</artifactId>
   <versioning>
-    <release>0.9.3-Java8</release>
     <versions>
-      <version>0.9.3-Java8</version>
+      <version>2.0.0-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20180521093441</lastUpdated>
+    <lastUpdated>20181026043048</lastUpdated>
   </versioning>
 </metadata>
