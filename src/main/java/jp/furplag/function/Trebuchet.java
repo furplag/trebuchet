@@ -44,6 +44,7 @@ public interface Trebuchet {
     /**
      * {@inheritDoc}
      */
+    @lombok.Generated
     @Override
     default void accept(T t, U u) {/* @formatter:off */try {accept0(t, u);} catch (Throwable ex) {sneakyThrow(ex);}/* @formatter:on */}
 
@@ -88,6 +89,7 @@ public interface Trebuchet {
     /**
      * {@inheritDoc}
      */
+    @lombok.Generated
     @Override
     default R apply(T t, U u) {/* @formatter:off */try {return apply0(t, u);} catch (Throwable ex) {sneakyThrow(ex);} return null;/* @formatter:on */}
 
@@ -132,6 +134,7 @@ public interface Trebuchet {
     /**
      * {@inheritDoc}
      */
+    @lombok.Generated
     @Override
     default void accept(T t) {/* @formatter:off */try {accept0(t);} catch (Throwable ex) {sneakyThrow(ex);}/* @formatter:on */}
 
@@ -173,6 +176,7 @@ public interface Trebuchet {
     /**
      * {@inheritDoc}
      */
+    @lombok.Generated
     @Override
     default R apply(T t) {/* @formatter:off */try {return apply0(t);} catch (Throwable ex) {sneakyThrow(ex);} return null;/* @formatter:on */}
 
