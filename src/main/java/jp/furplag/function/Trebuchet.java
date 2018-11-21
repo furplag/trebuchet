@@ -16,6 +16,7 @@
 
 package jp.furplag.function;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -122,6 +123,18 @@ public interface Trebuchet {
   public interface TrinaryOperator<T> extends TriFunction<T, T, T, T> {
 
     /**
+     * shorthand for {@code Stream.of(x0, x1, x2).filter((t) -> Objects.nonNull(t))} .
+     *
+     * @param <T> the type of the operand and result of the operator
+     * @param ts the value of the operand of the operator
+     * @return {@link Stream}
+     */
+    @SafeVarargs
+    private static <T> Stream<T> stream(T... ts) {
+      return Arrays.stream(ts).filter(Objects::nonNull);
+    }
+
+    /**
      * returns a {@link TrinaryOperator} which returns the greater of three elements according to the specified {@code Comparator} .
      *
      * @param <T> the type of the input arguments of the comparator
@@ -132,7 +145,7 @@ public interface Trebuchet {
     static <T> TrinaryOperator<T> maxBy(Comparator<? super T> comparator) {
       Objects.requireNonNull(comparator);
 
-      return (a, b, c) -> Stream.of(a, b, c).filter(Objects::nonNull).max(comparator).orElse(null);
+      return (a, b, c) -> stream(a, b, c).max(comparator).orElse(null);
     }
 
     /**
@@ -146,7 +159,7 @@ public interface Trebuchet {
     static <T> TrinaryOperator<T> minBy(Comparator<? super T> comparator) {
       Objects.requireNonNull(comparator);
 
-      return (a, b, c) -> Stream.of(a, b, c).filter(Objects::nonNull).min(comparator).orElse(null);
+      return (a, b, c) -> stream(a, b, c).min(comparator).orElse(null);
     }
   }
 
