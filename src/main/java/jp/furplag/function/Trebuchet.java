@@ -98,7 +98,7 @@ public interface Trebuchet {
      * @return a composed function that first applies this function and then applies the {@code after} function
      * @throws NullPointerException if after is null
      */
-    default <W> TriFunction<T, U, V, W> andThen(java.util.function.Function<? super R, ? extends W> after) {
+    default <W> TriFunction<T, U, V, W> andThen(Function<? super R, ? extends W> after) {
       Objects.requireNonNull(after);
 
       return (t, u, v) -> after.apply(apply(t, u, v));
