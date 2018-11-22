@@ -19,6 +19,12 @@ package jp.furplag.function;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -123,18 +129,6 @@ public interface Trebuchet {
   public interface TrinaryOperator<T> extends TriFunction<T, T, T, T> {
 
     /**
-     * shorthand for {@code Stream.of(x0, x1, x2).filter((t) -> Objects.nonNull(t))} .
-     *
-     * @param <T> the type of the operand and result of the operator
-     * @param ts the value of the operand of the operator
-     * @return {@link Stream}
-     */
-    @SafeVarargs
-    private static <T> Stream<T> stream(T... ts) {
-      return Arrays.stream(ts).filter(Objects::nonNull);
-    }
-
-    /**
      * returns a {@link TrinaryOperator} which returns the greater of three elements according to the specified {@code Comparator} .
      *
      * @param <T> the type of the input arguments of the comparator
@@ -160,6 +154,18 @@ public interface Trebuchet {
       Objects.requireNonNull(comparator);
 
       return (a, b, c) -> stream(a, b, c).min(comparator).orElse(null);
+    }
+
+    /**
+     * shorthand for {@code Stream.of(x0, x1, x2).filter((t) -> Objects.nonNull(t))} .
+     *
+     * @param <T> the type of the operand and result of the operator
+     * @param ts the value of the operand of the operator
+     * @return {@link Stream}
+     */
+    @SafeVarargs
+    private static <T> Stream<T> stream(T... ts) {
+      return Arrays.stream(ts).filter(Objects::nonNull);
     }
   }
 
@@ -233,7 +239,105 @@ public interface Trebuchet {
   }
 
   /**
-   * the fork of {@code lombok.Lombok.sneakyThrow(Throwable)} .
+   * returns specified {@code consumer}, or the {@link BiConsumer} which do nothing if this is null .
+   *
+   * @param <T> the type of the first argument to the operation
+   * @param <U> the type of the second argument to the operation
+   * @param consumer {@link BiConsumer}
+   * @return specified {@code consumer}, or the {@link BiConsumer} which do nothing if this is null
+   */
+  static <T, U> BiConsumer<? super T, ? super U> defaults(final BiConsumer<T, ? super U> consumer) {
+    return Objects.requireNonNullElse(consumer, (t, e) -> {/* do nothing . */});
+  }
+
+  /**
+   * returns specified {@code function}, or returns the {@link BiFunction} which always return null if {@code function} is null .
+   *
+   * @param <T> the type of the first argument to the function
+   * @param <U> the type of the second argument to the function
+   * @param <R> the type of the result of the function
+   * @param function {@link BiFunction}
+   * @return specified {@code function}, or returns the {@link BiFunction} which always return null if {@code function} is null
+   */
+  static <T, U, R> BiFunction<? super T, ? super U, ? extends R> defaults(final BiFunction<? super T, ? super U, ? extends R> function) {
+    return Objects.requireNonNullElse(function, (t, u) -> null);
+  }
+
+  /**
+   * returns specified {@code predicate}, or returns the {@link BiPredicate} which always return false if {@code predicate} is null .
+   *
+   * @param <T> the type of the first argument to the predicate
+   * @param <U> the type of the second argument to the predicate
+   * @param predicate {@link BiPredicate}
+   * @return specified {@code predicate}, or returns the {@link BiPredicate} which always return false if {@code predicate} is null
+   */
+  static <T, U> BiPredicate<? super T, ? super U> defaults(final BiPredicate<? super T, ? super U> predicate) {
+    return Objects.requireNonNullElse(predicate, (t, u) -> false);
+  }
+
+  /**
+   * returns specified {@code consumer}, or the {@link Consumer} which do nothing if this is null .
+   *
+   * @param <T> the type of the input to the operation
+   * @param consumer {@link Consumer}
+   * @return specified {@code consumer}, or the {@link Consumer} which do nothing if this is null
+   */
+  static <T> Consumer<? super T> defaults(final Consumer<T> consumer) {
+    return Objects.requireNonNullElse(consumer, (t) -> {/* do nothing . */});
+  }
+
+  /**
+   * returns specified {@code function}, or returns the {@link Function} which always return null if {@code function} is null .
+   *
+   * @param <T> the type of the input to the function
+   * @param <R> the type of the result of the function
+   * @param function {@link Function}
+   * @return specified {@code function}, or returns the {@link Function} which always return null if {@code function} is null
+   */
+  static <T, R> Function<? super T, ? extends R> defaults(final Function<? super T, ? extends R> function) {
+    return Objects.requireNonNullElse(function, (t) -> null);
+  }
+
+  /**
+   * returns specified {@code predicate}, or returns the {@link Predicate} which always return false if {@code predicate} is null .
+   *
+   * @param <T> the type of the input to the predicate
+   * @param predicate {@link Predicate}
+   * @return specified {@code predicate}, or returns the {@link Predicate} which always return false if {@code predicate} is null
+   */
+  static <T> Predicate<? super T> defaults(final Predicate<? super T> predicate) {
+    return Objects.requireNonNullElse(predicate, (t) -> false);
+  }
+
+  /**
+   * returns specified {@code consumer}, or the {@link TriConsumer} which do nothing if this is null .
+   *
+   * @param <T> the type of the first argument to the operation
+   * @param <U> the type of the second argument to the operation
+   * @param <V> the type of the third argument to the operation
+   * @param consumer {@link TriConsumer}
+   * @return specified {@code consumer}, or the {@link TriConsumer} which do nothing if this is null
+   */
+  static <T, U, V> TriConsumer<? super T, ? super U, ? super V> defaults(final TriConsumer<T, ? super U, ? super V> consumer) {
+    return Objects.requireNonNullElse(consumer, (t, u, v) -> {/* do nothing . */});
+  }
+
+  /**
+   * returns specified {@code function}, or returns the {@link TriFunction} which always return null if {@code function} is null .
+   *
+   * @param <T> the type of the first argument to the function
+   * @param <U> the type of the second argument to the function
+   * @param <V> the type of the third argument to the function
+   * @param <R> the type of the result of the function
+   * @param function {@link TriFunction}
+   * @return specified {@code function}, or returns the {@link TriFunction} which always return null if {@code function} is null
+   */
+  static <T, U, V, R> TriFunction<? super T, ? super U, ? super V, ? extends R> defaults(final TriFunction<T, ? super U, ? super V, ? extends R> function) {
+    return Objects.requireNonNullElse(function, (t, u, v) -> null);
+  }
+
+  /**
+   * the fork of {@link lombok.Lombok#sneakyThrow(Throwable)} .
    *
    * @param <E> anything thrown
    * @param ex anything thrown

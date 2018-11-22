@@ -37,7 +37,7 @@ public class ThrowableConsumerTest {
         @Override
         public void acceptOrThrow(Integer t) throws Throwable {
           t.intValue();
-        }}.accept(null);;
+        }}.accept(null);
     } catch (Exception ex) {
       assertThat(ex instanceof NullPointerException, is(true));
     }

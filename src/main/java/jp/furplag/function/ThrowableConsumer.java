@@ -32,26 +32,6 @@ import java.util.function.Consumer;
 public interface ThrowableConsumer<T> extends Consumer<T> {
 
   /**
-   * returns specified {@link consumer}, or do nothing if this is null .
-   *
-   * @param consumer {@link Consumer}
-   * @return specified {@link consumer}, or the {@link Consumer} which do nothing if this is null
-   */
-  private static <T> Consumer<? super T> muted(final Consumer<T> consumer) {
-    return Objects.requireNonNullElse(consumer, (t) -> {/* do nothing . */});
-  }
-
-  /**
-   * returns specified {@link consumer}, or do nothing if this is null .
-   *
-   * @param consumer {@link BiConsumer}
-   * @return specified {@link consumer}, or the {@link BiConsumer} which do nothing if this is null
-   */
-  private static <T, U> BiConsumer<? super T, ? super U> muted(final BiConsumer<T, ? super U> consumer) {
-    return Objects.requireNonNullElse(consumer, (t, e) -> {/* do nothing . */});
-  }
-
-  /**
    * should never write &quot;ugly&quot; try-catch block to handle {@link Throwable exceptions} in lambda expression .
    *
    * @param <T> the type of the input to the operation
@@ -65,7 +45,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
   static <T, E extends Throwable> ThrowableConsumer<T> of(final Consumer<? super T> consumer, final BiConsumer<? super T, ? super E> fallen) {
     Objects.requireNonNull(consumer);
 
-    return (t) -> {/* @formatter:off */try {consumer.accept(t);} catch (Throwable e) {muted(fallen).accept(t, (E) e);}/* @formatter:off */};
+    return (t) -> {/* @formatter:off */try {consumer.accept(t);} catch (Throwable e) {Trebuchet.defaults(fallen).accept(t, (E) e);}/* @formatter:off */};
   }
 
   /**
@@ -102,7 +82,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    * @param fallen {@link Consumer}, do nothing if this is null
    */
   static <T> void orElse(final T t, final Consumer<? super T> consumer, final Consumer<? super T> fallen) {
-    orElse(t, consumer, (x, ex) -> muted(fallen).accept(x));
+    orElse(t, consumer, (x, ex) -> Trebuchet.defaults(fallen).accept(x));
   }
 
   /**

@@ -43,7 +43,7 @@ public class TrebuchetTest {
   }
 
   @Test
-  public void testSneakyThrow() throws Throwable {
+  public void sneakyThrow() throws Throwable {
     MethodHandle sneakyThrow = MethodHandles.privateLookupIn(Trebuchet.class, MethodHandles.lookup()).findStatic(Trebuchet.class, "sneakyThrow", MethodType.methodType(void.class, Throwable.class));
     try {
       sneakyThrow.invoke(null);
@@ -68,9 +68,9 @@ public class TrebuchetTest {
   }
 
   @Test
-  public void testTriConsumer() {
+  public void triConsumer() {
     List<Integer> actuals = new ArrayList<>();
-    Trebuchet.TriConsumer<Integer, Integer, Integer> consumer = (x, y, z) ->  actuals.add(x + y + z);
+    Trebuchet.TriConsumer<Integer, Integer, Integer> consumer = (x, y, z) -> actuals.add(x + y + z);
     IntStream.rangeClosed(0, 9).forEach((x) -> consumer.accept(x, x + 1, x + 2));
     assertThat(actuals.toString(), is("[3, 6, 9, 12, 15, 18, 21, 24, 27, 30]"));
     actuals.clear();
@@ -79,7 +79,7 @@ public class TrebuchetTest {
   }
 
   @Test
-  public void testTriFunction() {
+  public void triFunction() {
     @AllArgsConstructor
     @EqualsAndHashCode
     @ToString
@@ -99,21 +99,7 @@ public class TrebuchetTest {
   }
 
   @Test
-  public void testTriPredicate() {
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).test(0, 1, 2), is(false));
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).test(1, 2, 3), is(true));
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).negate().test(0, 1, 2), is(true));
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).negate().negate().test(1, 2, 3), is(true));
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).and((a, b, c) -> (a + b + c) % 3 == 0).test(2, 3, 4), is(false));
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).and((a, b, c) -> (a + b + c) % 3 == 0).test(3, 3, 4), is(false));
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).and((a, b, c) -> (a + b + c) % 3 == 0).test(3, 4, 5), is(true));
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(1, 2, 2), is(false));
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(0, 1, 2), is(true));
-    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(1, 2, 3), is(true));
-  }
-
-  @Test
-  public void testTrinaryOperator() {
+  public void trinaryOperator() {
 
     @ToString
     @EqualsAndHashCode
@@ -142,5 +128,19 @@ public class TrebuchetTest {
     assertThat(TrinaryOperator.maxBy(A::compareTo).apply((C) null, null, null), is((A) null));
     assertThat(TrinaryOperator.minBy(A::compareTo).apply(new A(), null, null), is(new A()));
     assertThat(TrinaryOperator.minBy(A::compareTo).apply((C) null, null, null), is((A) null));
+  }
+
+  @Test
+  public void triPredicate() {
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).test(0, 1, 2), is(false));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).test(1, 2, 3), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).negate().test(0, 1, 2), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).negate().negate().test(1, 2, 3), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).and((a, b, c) -> (a + b + c) % 3 == 0).test(2, 3, 4), is(false));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).and((a, b, c) -> (a + b + c) % 3 == 0).test(3, 3, 4), is(false));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).and((a, b, c) -> (a + b + c) % 3 == 0).test(3, 4, 5), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(1, 2, 2), is(false));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(0, 1, 2), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(1, 2, 3), is(true));
   }
 }
