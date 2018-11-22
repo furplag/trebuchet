@@ -16,11 +16,14 @@
 
 package jp.furplag.function.misc;
 
-public interface ConsumerTest {
+public interface FunctionTest {
   static final Integer[] anArray = {0, 1, 2, 3, 4, null};
   public void test();
   public void testAndThen();
   public void testOf();
   public void testOrElse();
-  public void testOrNot();
+  public void testOrElseGet();
+  public void testOrDefault();
+  public void testApplyOrElse();
+  public void testOrNull();
 }

@@ -37,7 +37,7 @@ public interface Trebuchet {
 
   /**
    * represents an operation that accepts two input arguments and returns no result .
-   * this is the three-arity specialization of {@link java.util.function.Consumer Consumer} .
+   * this is the three-arity specialization of {@link Consumer} .
    * unlike most other functional interfaces, {@code TriConsumer} is expected to operate via side-effects .
    *
    * @author furplag
@@ -45,7 +45,7 @@ public interface Trebuchet {
    * @param <T> the type of the first argument to the operation
    * @param <U> the type of the second argument to the operation
    * @param <V> the type of the third argument to the operation
-   * @see {@link java.util.function.Consumer Consumer}
+   * @see {@link Consumer}
    */
   @FunctionalInterface
   static interface TriConsumer<T, U, V> {
@@ -76,7 +76,7 @@ public interface Trebuchet {
 
   /**
    * represents a function that accepts three arguments and produces a result .
-   * this is the three-arity specialization of {@link java.util.function.Function Function} .
+   * this is the three-arity specialization of {@link Function} .
    *
    * @author furplag
    *
@@ -84,7 +84,7 @@ public interface Trebuchet {
    * @param <U> the type of the second argument to the function
    * @param <V> the type of the third argument to the function
    * @param <R> the type of the result of the function
-   * @see {@link java.util.function.Function Function}
+   * @see {@link Function}
    */
   @FunctionalInterface
   static interface TriFunction<T, U, V, R> {
@@ -123,7 +123,7 @@ public interface Trebuchet {
    *
    * @param <T> the type of the operand and result of the operator
    * @see TriFunction
-   * @see {@link java.util.function.UnaryOperator UnaryOperator}
+   * @see {@link UnaryOperator}
    */
   @FunctionalInterface
   public interface TrinaryOperator<T> extends TriFunction<T, T, T, T> {
@@ -171,7 +171,7 @@ public interface Trebuchet {
 
   /**
    * represents a predicate (boolean-valued function) of three arguments .
-   * this is the three-arity specialization of {@link java.util.function.Predicate Predicate} .
+   * this is the three-arity specialization of {@link Predicate} .
    *
    * @author furplag
    *
@@ -179,7 +179,7 @@ public interface Trebuchet {
    * @param <U> the type of the second argument to the predicate
    * @param <V> the type of the third argument to the predicate
    * @see TriFunction
-   * @see {@link java.util.function.Predicate Predicate}
+   * @see {@link Predicate}
    */
   @FunctionalInterface
   public interface TriPredicate<T, U, V> extends TriFunction<T, U, V, Boolean> {
