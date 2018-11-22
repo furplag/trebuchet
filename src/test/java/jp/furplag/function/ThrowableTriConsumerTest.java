@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.furplag.function;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -20,75 +21,92 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.IntStream;
+import java.util.Map;
+import java.util.Objects;
 
 import org.junit.Test;
 
 import jp.furplag.function.Trebuchet.TriConsumer;
+import jp.furplag.function.misc.ConsumerTest;
 
-public class ThrowableTriConsumerTest {
+public class ThrowableTriConsumerTest implements ConsumerTest {
 
   @Test
   public void test() {
     try {
-      new ThrowableTriConsumer<Integer, Integer, Integer>() {
-
-        @Override
-        public void acceptOrThrow(Integer t, Integer u, Integer v) throws Throwable {
-          t.intValue();
-        }}.accept(null, 0, 1);
+      ThrowableTriConsumer.orElse(Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), (t, u, v) -> System.out.println(t / u + (v - v)), (e) -> Trebuchet.sneakyThrow(e));
+      fail("there must raise ArithmeticException .");
     } catch (Exception ex) {
-      assertThat(ex instanceof NullPointerException, is(true));
+      assertThat(ex instanceof ArithmeticException, is(true));
     }
-  }
-
-  @Test
-  public void testOf() {
-    List<Integer> actuals = new ArrayList<>();
-    final TriConsumer<Integer, Integer, Integer> consumer1 = ThrowableTriConsumer.of((t, u, v) -> actuals.add(t / u + v - v), ThrowableTriConsumer.of((t, u, v) -> actuals.add(t - u + v - v), (t, u, v) -> actuals.add(-1)));
-    Arrays.stream(new Integer[] {0, 1, 2, null, 4}).forEach((x) -> consumer1.accept(x, x, x));
-    assertThat(actuals.toString(), is("[0, 1, 1, -1, 1]"));
-    actuals.clear();
-    final TriConsumer<Integer, Integer, Integer> consumer2 = ThrowableTriConsumer.of((t, u, v) -> actuals.add(t / u + v - v), ThrowableTriConsumer.of((t, u, v) -> actuals.add(t - u + v - v), (TriConsumer<Integer, Integer, Integer>) null));
-    Arrays.stream(new Integer[] {0, 1, 2, null, 4}).forEach((x) -> consumer2.accept(x, x, x));
-    assertThat(actuals.toString(), is("[0, 1, 1, 1]"));
-  }
-
-  @Test
-  public void testOrElse() {
-    List<Integer> actuals = new ArrayList<>();
-    IntStream.rangeClosed(0, 2).boxed().forEach((x) -> ThrowableTriConsumer.orElse(x, x, x, (x0, x1, x2) -> actuals.add(x0 / x1 + x2 - x2), (TriConsumer<Integer, Integer, Integer>) null));
-    assertThat(actuals.toString(), is("[1, 1]"));
-    actuals.clear();
-    IntStream.rangeClosed(0, 2).boxed().forEach((x) -> ThrowableTriConsumer.orElse(x, x, x, (x0, x1, x2) -> actuals.add(x0 / x1 + x2 - x2), (Consumer<Exception>) null));
-    assertThat(actuals.toString(), is("[1, 1]"));
-    actuals.clear();
-    IntStream.rangeClosed(0, 2).boxed().forEach((x) -> ThrowableTriConsumer.orElse(x, x, x, (x0, x1, x2) -> actuals.add(x0 / x1 + x2 - x2), (x0, x1, x2) -> actuals.add( x0 - x1 + x2 - x2)));
-    assertThat(actuals.toString(), is("[0, 1, 1]"));
-    actuals.clear();
-    Arrays.stream(new Integer[] {0, 1, 2, null, 4}).forEach((x) -> ThrowableTriConsumer.orElse(x, x, x, (x0, x1, x2) -> actuals.add(x0 / x1 + x2 - x2), (ex0) -> actuals.add(ex0 instanceof ArithmeticException ? 0 : -1)));
-    assertThat(actuals.toString(), is("[0, 1, 1, -1, 1]"));
-    actuals.clear();
-  }
-
-  @Test
-  public void testOrNot() {
-    List<Integer> actuals = new ArrayList<>();
-    IntStream.rangeClosed(0, 2).boxed().forEach((x) -> ThrowableTriConsumer.orNot(x, x, x, (x0, x1, x2) -> actuals.add(x0 - x1 + x2 - x2)));
-    assertThat(actuals.toString(), is("[0, 0, 0]"));
-    actuals.clear();
-    IntStream.rangeClosed(0, 2).boxed().forEach((x) -> ThrowableTriConsumer.orNot(x, x, x, (x0, x1, x2) -> actuals.add(x0 / x1 + x2 - x2)));
-    assertThat(actuals.toString(), is("[1, 1]"));
+    final int[] divided = { -1 };
+    final TriConsumer<Integer, Integer, Integer> divider = ThrowableTriConsumer.of((t, u, v) -> divided[0] = (t / u + (v - v)), (t, u, v) -> divided[0] = Integer.valueOf(Objects.toString(t, "0")));
+    Arrays.stream(anArray).forEach((t) -> {
+      divider.accept(t, t, t);
+      assertThat(divided[0], is(t == null || t == 0 ? 0 : 1));
+    });
   }
 
   @Test
   public void testAndThen() {
-    List<Integer> actuals = new ArrayList<>();
-    final TriConsumer<Integer, Integer, Integer> consumer = ThrowableTriConsumer.of((t, u, v) -> actuals.add(t / u + v - v), ThrowableTriConsumer.of((t, u, v) -> actuals.add(t - u + v - v), (t, u, v) -> actuals.add(-1)));
-    final TriConsumer<Integer, Integer, Integer> newConsumer = consumer.andThen(ThrowableTriConsumer.of((t, u, v) -> actuals.add(t + u + v - v), (t, u, v) -> actuals.add(0)));
-    Arrays.stream(new Integer[] {0, 1, 2, null, 4}).forEach((x) -> newConsumer.accept(x, x, x));
-    assertThat(actuals.toString(), is("[0, 0, 1, 2, 1, 4, -1, 0, 1, 8]"));
+    final int[] divided = { -1 };
+    final String[] actual = { "" };
+    TriConsumer<Integer, Integer, Integer> divider = ThrowableTriConsumer.of((t, u, v) -> divided[0] = (t / u + (v - v)), (t, u, v) -> divided[0] = Integer.valueOf(Objects.toString(t, "0")));
+    final TriConsumer<Integer, Integer, Integer> consumer = divider.andThen((t, u, v) -> actual[0] = Objects.toString(t));
+    Arrays.stream(anArray).forEach((t) -> {
+      consumer.accept(t, t, t);
+      assertThat(divided[0], is(t == null || t == 0 ? 0 : 1));
+      assertThat(actual[0], is(Objects.toString(t)));
+    });
+  }
+
+  @Test
+  public void testOf() {
+    List<Integer> result = new ArrayList<>();
+    Arrays.stream(anArray).forEach((i) -> ThrowableTriConsumer.of((t, u, v) -> result.add(t / u + (v - v)), ThrowableTriConsumer.of((t, u, v) -> result.add(t - u + (v - v)), (TriConsumer<Integer, Integer, Integer>) null)).accept(i, i, i));
+    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {0, 1, 1, 1, 1});
+
+    result.clear();
+    Arrays.stream(anArray).forEach((i) -> ThrowableTriConsumer.of((t, u, v) -> result.add(t / u + (v - v)), ThrowableTriConsumer.of((t, u, v) -> result.add(t - u + (v - v)), (TriConsumer<Integer, Integer, Integer>) null)).accept(i, i, i));
+    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {0, 1, 1, 1, 1});
+
+    result.clear();
+    Arrays.stream(anArray).forEach((i) -> ThrowableTriConsumer.of((Integer t, Integer u, Integer v) -> result.add(t / u + (v - v)), ThrowableTriConsumer.of((Integer t, Integer u, Integer v) -> result.add(t - u + (v - v)), (t, u, v) -> result.add(Integer.valueOf(Objects.toString(t, "-1"))))).accept(i, i, i));
+    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {0, 1, 1, 1, 1, -1});
+
+    result.clear();
+    Map<Integer, Class<?>> errors = new HashMap<>();
+    Arrays.stream(anArray).forEach((i) -> ThrowableTriConsumer.of((Integer t, Integer u, Integer v) -> result.add(t / u + (v - v)), (e) -> errors.put(errors.size(), e.getClass())).accept(i, i, i));
+    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {1, 1, 1, 1});
+    assertArrayEquals(errors.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).map(Map.Entry::getValue).toArray(Class<?>[]::new), new Class<?>[] {ArithmeticException.class, NullPointerException.class});
+  }
+
+  @Test
+  public void testOrElse() {
+    List<Integer> result = new ArrayList<>();
+    Arrays.stream(anArray).forEach((i) -> ThrowableTriConsumer.orElse(i, i, i, (t, u, v) -> result.add(t / u + (v - v)), ThrowableTriConsumer.of((t, u, v) -> result.add(t - u + (v - v)), (TriConsumer<Integer, Integer, Integer>) null)));
+    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {0, 1, 1, 1, 1});
+
+    result.clear();
+    Arrays.stream(anArray).forEach((i) -> ThrowableTriConsumer.orElse(i, i, i, (t, u, v) -> result.add(t / u + (v - v)), ThrowableTriConsumer.of((t, u, v) -> result.add(t - t + (v - v)), (t, u, v) -> result.add(Integer.valueOf(Objects.toString(t, "-1"))))));
+    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {0, 1, 1, 1, 1, -1});
+
+    result.clear();
+    Map<Integer, Class<?>> errors = new HashMap<>();
+    Arrays.stream(anArray).forEach((i) -> ThrowableTriConsumer.orElse(i, i, i, (t, u, v) -> result.add(t / u + (v - v)), (e) -> errors.put(Integer.valueOf(Objects.toString(errors.size(), "-1")), e.getClass())));
+    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {1, 1, 1, 1});
+    assertArrayEquals(errors.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).map(Map.Entry::getValue).toArray(Class<?>[]::new), new Class<?>[] {ArithmeticException.class, NullPointerException.class});
+  }
+
+  @Test
+  public void testOrNot() {
+    List<Integer> expect = new ArrayList<>();
+    List<Integer> actual = new ArrayList<>();
+    Arrays.stream(new Integer[] {0, 1, 2, 3, 4, null}).forEach((i) -> ThrowableTriConsumer.orElse(i, i, i, (t, u, v) -> expect.add(t / u + (v - v)), ThrowableTriConsumer.of((t, u, v) -> expect.add(t - u), (TriConsumer<Integer, Integer, Integer>) null)));
+    Arrays.stream(new Integer[] {0, 1, 2, 3, 4, null}).forEach((i) -> ThrowableTriConsumer.orElse(i, i, i, (t, u, v) -> actual.add(t / u + (v - v)), (t, u, v) -> ThrowableTriConsumer.orNot(t, u, v, (x, y, z) -> actual.add(x - y))));
+    assertArrayEquals(expect.toArray(Integer[]::new), actual.toArray(Integer[]::new));
   }
 }
