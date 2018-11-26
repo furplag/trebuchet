@@ -105,7 +105,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @param fallen the return value when error has occurred
    * @return the result of {@link #apply(Object, Object, Object) function.apply(T, U, V)} if done it normally, or fallen if error occurred
    */
-  static <T, U, V, R, W extends R> R orDefault(final T t, final U u, final V v, final TriFunction<? super T, ? super U, ? super V, R> function, final W fallen) {
+  static <T, U, V, R, W extends R> R orDefault(final T t, final U u, final V v, final TriFunction<? super T, ? super U, ? super V, ? extends R> function, final W fallen) {
     return orElseGet(t, u, v, function, () -> fallen);
   }
 
