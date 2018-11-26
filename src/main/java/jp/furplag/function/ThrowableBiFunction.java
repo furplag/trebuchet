@@ -49,7 +49,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param fallen the return value when the function returns null, may not be null
    * @return the result of {@link ThrowableBiFunction#apply(Object, Object) function.apply(T, U)} if done it normally, or {@code fallen} if error occurred
    */
-  static <T, U, R, V extends R> R applyOrDefault(final T t, final U u, final BiFunction<? super T, ? super U, ? extends R> function, final V fallen) {
+  static <T, U, R, V extends R> R applyOrDefault(final T t, final U u, final ThrowableBiFunction<? super T, ? super U, ? extends R> function, final V fallen) {
     return Objects.requireNonNullElse(orElse(t, u, function, (ex) -> null), Objects.requireNonNull(fallen));
   }
 
@@ -63,7 +63,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param fallen {@link BiFunction}, or the function that always return {@code null} if this is null
    * @return {@link ThrowableBiFunction}
    */
-  static <T, U, R> ThrowableBiFunction<T, U, R> of(final BiFunction<? super T, ? super U, ? extends R> function, final BiFunction<? super T, ? super U, ? extends R> fallen) {
+  static <T, U, R> ThrowableBiFunction<T, U, R> of(final ThrowableBiFunction<? super T, ? super U, ? extends R> function, final BiFunction<? super T, ? super U, ? extends R> fallen) {
     return of(function, (t, u, e) -> Trebuchet.defaults(fallen).apply(t, u));
   }
 
@@ -79,7 +79,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @return {@link ThrowableBiFunction}
    */
   @SuppressWarnings({ "unchecked" })
-  static <T, U, R, E extends Throwable> ThrowableBiFunction<T, U, R> of(final BiFunction<? super T, ? super U, ? extends R> function, final Function<? super E, ? extends R> fallen) {
+  static <T, U, R, E extends Throwable> ThrowableBiFunction<T, U, R> of(final ThrowableBiFunction<? super T, ? super U, ? extends R> function, final Function<? super E, ? extends R> fallen) {
     return of(function, (t, u, e) -> Trebuchet.defaults(fallen).apply((E) e));
   }
 
@@ -96,7 +96,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @throws NullPointerException if {@code function} is null
    */
   @SuppressWarnings({ "unchecked" })
-  static <T, U, R, E extends Throwable> ThrowableBiFunction<T, U, R> of(final BiFunction<? super T, ? super U, ? extends R> function, final TriFunction<? super T, ? super U, ? super E, ? extends R> fallen) {
+  static <T, U, R, E extends Throwable> ThrowableBiFunction<T, U, R> of(final ThrowableBiFunction<? super T, ? super U, ? extends R> function, final TriFunction<? super T, ? super U, ? super E, ? extends R> fallen) {
     Objects.requireNonNull(function);
 
     return (t, u) -> {/* @formatter:off */try {return function.apply(t, u);} catch (Throwable e) {return Trebuchet.defaults(fallen).apply(t, u, (E) e);}/* @formatter:off */};
@@ -115,7 +115,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param fallen the return value when error has occurred
    * @return the result of {@link ThrowableBiFunction#apply(Object, Object) function.apply(T, U)} if done it normally, or fallen if error occurred
    */
-  static <T, U, R, V extends R> R orDefault(final T t, final U u, final BiFunction<? super T, ? super U, ? extends R> function, final V fallen) {
+  static <T, U, R, V extends R> R orDefault(final T t, final U u, final ThrowableBiFunction<? super T, ? super U, ? extends R> function, final V fallen) {
     return orElseGet(t, u, function, () -> fallen);
   }
 
@@ -132,7 +132,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param fallen {@link BiFunction}, or the function that always return {@code null} if this is null
    * @return the result of {@link #apply(Object, Object) function.apply(T, U)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(T, U)} if error occurred
    */
-  static <T, U, R, E extends Throwable> R orElse(final T t, final U u, final BiFunction<? super T, ? super U, ? extends R> function, final BiFunction<? super T, ? super U, ? extends R> fallen) {
+  static <T, U, R, E extends Throwable> R orElse(final T t, final U u, final ThrowableBiFunction<? super T, ? super U, ? extends R> function, final BiFunction<? super T, ? super U, ? extends R> fallen) {
     return of(function, fallen).apply(t, u);
   }
 
@@ -149,7 +149,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param fallen {@link TriFunction}, or the function that always return {@code null} if this is null
    * @return the result of {@link #apply(Object, Object) function.apply(T, U)} if done it normally, or {@link Function#apply(Object) fallen.apply(E)} if error occurred
    */
-  static <T, U, R, E extends Throwable> R orElse(final T t, final U u, final BiFunction<? super T, ? super U, ? extends R> function, final Function<? super E, ? extends R> fallen) {
+  static <T, U, R, E extends Throwable> R orElse(final T t, final U u, final ThrowableBiFunction<? super T, ? super U, ? extends R> function, final Function<? super E, ? extends R> fallen) {
     return of(function, fallen).apply(t, u);
   }
 
@@ -166,7 +166,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param fallen {@link TriFunction}, or the function that always return {@code null} if this is null
    * @return the result of {@link #apply(Object, Object) function.apply(T, U)} if done it normally, or {@link TriFunction#apply(Object, Object, Object) fallen.apply(T, U, E)} if error occurred
    */
-  static <T, U, R, E extends Throwable> R orElse(final T t, final U u, final BiFunction<? super T, ? super U, ? extends R> function, final TriFunction<? super T, ? super U, ? super E, ? extends R> fallen) {
+  static <T, U, R, E extends Throwable> R orElse(final T t, final U u, final ThrowableBiFunction<? super T, ? super U, ? extends R> function, final TriFunction<? super T, ? super U, ? super E, ? extends R> fallen) {
     return of(function, fallen).apply(t, u);
   }
 
@@ -182,7 +182,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param fallen {@link Supplier}, or the function that always return {@code null} if this is null
    * @return the result of {@link #apply(Object, Object) function.apply(T, U)} if done it normally, or {@link Supplier#get() fallen.get()} if error occurred
    */
-  static <T, U, R> R orElseGet(final T t, final U u, final BiFunction<? super T, U, ? extends R> function, Supplier<? extends R> fallen) {
+  static <T, U, R> R orElseGet(final T t, final U u, final ThrowableBiFunction<? super T, U, ? extends R> function, Supplier<? extends R> fallen) {
     return orElse(t, u, function, (x, y, ex) -> Objects.requireNonNullElse(fallen, () -> null).get());
   }
 
@@ -197,7 +197,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param function {@link Function}, may not be null
    * @return the result of {@link #apply(Object, Object) function.apply(T, U)} if done it normally, or {@code null} if error occurred
    */
-  static <T, U, R> R orNull(final T t, final U u, final BiFunction<? super T, U, ? extends R> function) {
+  static <T, U, R> R orNull(final T t, final U u, final ThrowableBiFunction<? super T, U, ? extends R> function) {
     return orElseGet(t, u, function, () -> null);
   }
 
@@ -207,7 +207,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @throws NullPointerException if {@code after} is null
    */
   @Override
-  default <V> BiFunction<T, U, V> andThen(Function<? super R, ? extends V> after) {
+  default <V> ThrowableBiFunction<T, U, V> andThen(Function<? super R, ? extends V> after) {
     Objects.requireNonNull(after);
 
     return (t, u) -> {/* @formatter:off */try {return after.apply(applyOrThrow(t, u));} catch (Throwable e) {Trebuchet.sneakyThrow(e);} return null;/* @formatter:on */};

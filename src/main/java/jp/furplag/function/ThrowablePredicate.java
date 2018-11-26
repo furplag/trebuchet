@@ -44,7 +44,7 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
    * @return {@link ThrowablePredicate}
    * @throws NullPointerException if arguments contains null
    */
-  static <T, E extends Throwable> ThrowablePredicate<T> of(final Predicate<? super T> predicate, final BiPredicate<? super T, ? super E> fallen) {
+  static <T, E extends Throwable> ThrowablePredicate<T> of(final ThrowablePredicate<? super T> predicate, final BiPredicate<? super T, ? super E> fallen) {
     return ThrowableFunction.of(predicate::test, Trebuchet.defaults(fallen)::test)::apply;
   }
 
@@ -59,7 +59,7 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
    * @throws NullPointerException if arguments contains null
    */
   @SuppressWarnings({ "unchecked" })
-  static <T, E extends Throwable> ThrowablePredicate<T> of(final Predicate<? super T> predicate, final Predicate<? super T> fallen) {
+  static <T, E extends Throwable> ThrowablePredicate<T> of(final ThrowablePredicate<? super T> predicate, final Predicate<? super T> fallen) {
     return of(predicate, (t, e) -> Trebuchet.defaults(fallen).test((T) t))::apply;
   }
 
@@ -71,7 +71,7 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
    * @param fallen the return value when error has occurred
    * @return the result of {@link #test(Object) predicate.test(T)} if done it normally, or fallen if error occurred
    */
-  static <T> boolean orDefault(final T t, final Predicate<? super T> predicate, final boolean fallen) {
+  static <T> boolean orDefault(final T t, final ThrowablePredicate<? super T> predicate, final boolean fallen) {
     return orElseGet(t, predicate, () -> fallen);
   }
 
@@ -83,7 +83,7 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
    * @param fallen {@link Predicate}, or the function that always return false if this is null
    * @return the result of {@link #test(Object) predicate.test(T)} if done it normally, or {@link Predicate#test(Object) fallen.test(T)} if error occurred
    */
-  static <T, E extends Throwable> boolean orElse(final T t, final Predicate<? super T> predicate, final BiPredicate<? super T, E> fallen) {
+  static <T, E extends Throwable> boolean orElse(final T t, final ThrowablePredicate<? super T> predicate, final BiPredicate<? super T, E> fallen) {
     return of(predicate, fallen).test(t);
   }
 
@@ -95,7 +95,7 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
    * @param fallen {@link Predicate}, or the predicate that always return false if this is null
    * @return the result of {@link #test(Object) predicate.test(T)} if done it normally, or {@link Predicate#test(Object) fallen.test(T)} if error occurred
    */
-  static <T> boolean orElse(final T t, final Predicate<? super T> predicate, final Predicate<? super T> fallen) {
+  static <T> boolean orElse(final T t, final ThrowablePredicate<? super T> predicate, final Predicate<? super T> fallen) {
     return orElse(t, predicate, (x, ex) -> Trebuchet.defaults(fallen).test(x));
   }
 
@@ -106,7 +106,7 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
    * @param predicate {@link Predicate}, may not be null
    * @return the result of {@link #test(Object) predicate.test(T)} if done it normally, or {@code false} if error occurred
    */
-  static <T> boolean orNot(final T t, final Predicate<? super T> predicate) {
+  static <T> boolean orNot(final T t, final ThrowablePredicate<? super T> predicate) {
     return orElseGet(t, predicate, () -> false);
   }
 
@@ -118,7 +118,7 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
    * @param fallen {@link BooleanSupplier}, or the function that always return {@code false} if this is null
    * @return the result of {@link #test(Object) predicate.test(T)} if done it normally, or fallen if error occurred
    */
-  static <T> boolean orElseGet(final T t, final Predicate<? super T> predicate, final BooleanSupplier fallen) {
+  static <T> boolean orElseGet(final T t, final ThrowablePredicate<? super T> predicate, final BooleanSupplier fallen) {
     return ThrowableFunction.orElseGet(t, predicate::test, Objects.requireNonNullElse(fallen, () -> false)::getAsBoolean);
   }
 

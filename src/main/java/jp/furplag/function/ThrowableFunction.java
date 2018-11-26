@@ -43,7 +43,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @param fallen the return value when the function returns null, may not be null
    * @return the result of {@link ThrowableFunction#apply(Object) function.apply(T)} if done it normally, or fallen if error occurred
    */
-  static <T, R, U extends R> R applyOrDefault(final T t, final Function<? super T, ? extends R> function, final U fallen) {
+  static <T, R, U extends R> R applyOrDefault(final T t, final ThrowableFunction<? super T, ? extends R> function, final U fallen) {
     return Objects.requireNonNullElse(orElse(t, function, (e) -> null), Objects.requireNonNull(fallen));
   }
 
@@ -69,7 +69,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @throws NullPointerException if {@code function} is null
    */
   @SuppressWarnings({ "unchecked" })
-  static <T, R, E extends Throwable> ThrowableFunction<T, R> of(final Function<? super T, ? extends R> function, final BiFunction<? super T, ? super E, ? extends R> fallen) {
+  static <T, R, E extends Throwable> ThrowableFunction<T, R> of(final ThrowableFunction<? super T, ? extends R> function, final BiFunction<? super T, ? super E, ? extends R> fallen) {
     Objects.requireNonNull(function);
 
     return (t) -> {/* @formatter:off */try {return function.apply(t);} catch (Throwable e) {return Trebuchet.defaults(fallen).apply(t, (E) e);}/* @formatter:off */};
@@ -84,7 +84,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @param fallen {@link Function}, or the function that always return null if this is null
    * @return {@link ThrowableFunction}
    */
-  static <T, R> ThrowableFunction<T, R> of(final Function<? super T, ? extends R> function, final Function<? super T, ? extends R> fallen) {
+  static <T, R> ThrowableFunction<T, R> of(final ThrowableFunction<? super T, ? extends R> function, final Function<? super T, ? extends R> fallen) {
     return of(function, (t, e) -> Trebuchet.defaults(fallen).apply(t));
   }
 
@@ -99,7 +99,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @param fallen the return value when error has occurred
    * @return the result of {@link #apply(Object) function.apply(T)} if done it normally, or fallen if error occurred
    */
-  static <T, R, U extends R> R orDefault(final T t, final Function<? super T, ? extends R> function, final U fallen) {
+  static <T, R, U extends R> R orDefault(final T t, final ThrowableFunction<? super T, ? extends R> function, final U fallen) {
     return orElseGet(t, function, () -> fallen);
   }
 
@@ -114,7 +114,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @param fallen {@link BiFunction}, or the function that always return null if this is null
    * @return the result of {@link #apply(Object) function.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(T, E)} if error occurred
    */
-  static <T, R, E extends Throwable> R orElse(final T t, final Function<? super T, ? extends R> function, final BiFunction<? super T, ? super E, ? extends R> fallen) {
+  static <T, R, E extends Throwable> R orElse(final T t, final ThrowableFunction<? super T, ? extends R> function, final BiFunction<? super T, ? super E, ? extends R> fallen) {
     return of(function, fallen).apply(t);
   }
 
@@ -128,7 +128,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @param fallen {@link BiFunction}, or the function that always return null if this is null
    * @return the result of {@link #apply(Object) function.apply(T)} if done it normally, or {@link Function#apply(Object) fallen.apply(T)} if error occurred
    */
-  static <T, R> R orElse(final T t, final Function<? super T, ? extends R> function, final Function<? super T, ? extends R> fallen) {
+  static <T, R> R orElse(final T t, final ThrowableFunction<? super T, ? extends R> function, final Function<? super T, ? extends R> fallen) {
     return orElse(t, function, (x, ex) -> Trebuchet.defaults(fallen).apply(x));
   }
 
@@ -142,7 +142,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @param fallen {@link Supplier}
    * @return the result of {@link #apply(Object) function.apply(T)} if done it normally, or {@link Supplier#get() fallen.get()} if error occurred
    */
-  static <T, R> R orElseGet(final T t, final Function<? super T, ? extends R> function, Supplier<? extends R> fallen) {
+  static <T, R> R orElseGet(final T t, final ThrowableFunction<? super T, ? extends R> function, Supplier<? extends R> fallen) {
     return orElse(t, function, (x) -> Objects.requireNonNullElse(fallen, () -> null).get());
   }
 
@@ -155,7 +155,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @param function {@link Function}, may not be null
    * @return the result of {@link #apply(Object) function.apply(T)} if done it normally, or {@code null} if error occurred
    */
-  static <T, R> R orNull(final T t, final Function<? super T, ? extends R> function) {
+  static <T, R> R orNull(final T t, final ThrowableFunction<? super T, ? extends R> function) {
     return orElseGet(t, function, () -> null);
   }
 

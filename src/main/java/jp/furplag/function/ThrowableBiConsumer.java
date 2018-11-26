@@ -45,7 +45,7 @@ public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
    * @throws NullPointerException if {@code consumer} is null
    */
   @SuppressWarnings({ "unchecked" })
-  static <T, U, E extends Throwable> ThrowableBiConsumer<T, U> of(final BiConsumer<? super T, ? super U> consumer, final TriConsumer<? super T, ? super U, ? super E> fallen) {
+  static <T, U, E extends Throwable> ThrowableBiConsumer<T, U> of(final ThrowableBiConsumer<? super T, ? super U> consumer, final TriConsumer<? super T, ? super U, ? super E> fallen) {
     Objects.requireNonNull(consumer);
 
     return (t, u) -> {/* @formatter:off */try {consumer.accept(t, u);} catch (Throwable e) {Trebuchet.defaults(fallen).accept(t, u, (E) e);}/* @formatter:off */};
@@ -60,7 +60,7 @@ public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
    * @param fallen {@link BiConsumer}, do nothing if this is null
    * @return {@link ThrowableBiConsumer}
    */
-  static <T, U> ThrowableBiConsumer<T, U> of(final BiConsumer<? super T, ? super U> consumer, final BiConsumer<? super T, ? super U> fallen) {
+  static <T, U> ThrowableBiConsumer<T, U> of(final ThrowableBiConsumer<? super T, ? super U> consumer, final BiConsumer<? super T, ? super U> fallen) {
     return of(consumer, (t, u, e) -> Trebuchet.defaults(fallen).accept(t, u));
   }
 
@@ -75,7 +75,7 @@ public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
    * @param consumer {@link BiConsumer}, may not be null
    * @param fallen {@link TriConsumer}, do nothing if this is null
    */
-  static <T, U, E extends Throwable> void orElse(final T t, final U u, final BiConsumer<? super T, ? super U> consumer, final TriConsumer<? super T, ? super U, ? super E> fallen) {
+  static <T, U, E extends Throwable> void orElse(final T t, final U u, final ThrowableBiConsumer<? super T, ? super U> consumer, final TriConsumer<? super T, ? super U, ? super E> fallen) {
     of(consumer, fallen).accept(t, u);
   }
 
@@ -89,7 +89,7 @@ public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
    * @param consumer {@link BiConsumer}, may not be null
    * @param fallen {@link BiConsumer}, do nothing if this is null
    */
-  static <T, U> void orElse(final T t, final U u, final BiConsumer<? super T, ? super U> consumer, final BiConsumer<? super T, ? super U> fallen) {
+  static <T, U> void orElse(final T t, final U u, final ThrowableBiConsumer<? super T, ? super U> consumer, final BiConsumer<? super T, ? super U> fallen) {
     orElse(t, u, consumer, (x, y, ex) -> Trebuchet.defaults(fallen).accept(x, y));
   }
 
@@ -102,7 +102,7 @@ public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
    * @param u the value of the second argument to the operation
    * @param consumer {@link BiConsumer}, may not be null
    */
-  static <T, U> void orNot(final T t, final U u, final BiConsumer<? super T, ? super U> consumer) {
+  static <T, U> void orNot(final T t, final U u, final ThrowableBiConsumer<? super T, ? super U> consumer) {
     orElse(t, u, consumer, (BiConsumer<T, U>) null);
   }
 
