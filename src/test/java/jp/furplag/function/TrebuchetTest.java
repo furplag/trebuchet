@@ -16,41 +16,25 @@
 
 package jp.furplag.function;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.Arrays;
-import java.util.StringJoiner;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
+import jp.furplag.function.Trebuchet.TrinaryOperator;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 public class TrebuchetTest {
-
-  private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-  private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-
-  @Before
-  public void setUpStreams() {
-      System.setOut(new PrintStream(outContent));
-      System.setErr(new PrintStream(errContent));
-  }
-
-  @After
-  public void cleanUpStreams() {
-      System.setOut(null);
-      System.setErr(null);
-  }
 
   @Test
   public void test() {
@@ -59,204 +43,104 @@ public class TrebuchetTest {
   }
 
   @Test
-  public void testSneakyThrow() throws Throwable {
+  public void sneakyThrow() throws Throwable {
     MethodHandle sneakyThrow = MethodHandles.privateLookupIn(Trebuchet.class, MethodHandles.lookup()).findStatic(Trebuchet.class, "sneakyThrow", MethodType.methodType(void.class, Throwable.class));
     try {
       sneakyThrow.invoke(null);
     } catch (Throwable ex) {
       assertTrue(ex instanceof IllegalArgumentException);
     }
-    final Throwable[] throwable = {null};
-    Trebuchet.orElse((String x) -> {x.toLowerCase();}, (ex, x) -> throwable[0] = ex).accept("NOPE");
+    try {
+      sneakyThrow.invoke(new NullPointerException());
+    } catch (Throwable ex) {
+      assertTrue(ex instanceof NullPointerException);
+    }
+
+    final Throwable[] throwable = { null };
+    // @formatter:off
+    ThrowableConsumer.orElse("Test", (x) -> {x.toLowerCase();}, (x, ex) -> throwable[0] = ex);
     assertNull(throwable[0]);
-    Trebuchet.orElse((String x) -> {x.toLowerCase();}, (ex, x) -> throwable[0] = ex).accept(null);
+    ThrowableConsumer.orElse((String) null, (x) -> {x.toLowerCase();}, (x, ex) -> throwable[0] = ex);
     assertTrue(throwable[0] instanceof NullPointerException);
-    Trebuchet.orElse((Integer x) -> {@SuppressWarnings("unused") int test = x / x;}, (ex, x) -> throwable[0] = ex).accept(Integer.valueOf(0));
+    ThrowableConsumer.orElse(0, (x) -> {@SuppressWarnings("unused") int test = x / x;}, (x, ex) -> throwable[0] = ex);
     assertTrue(throwable[0] instanceof ArithmeticException);
+    // @formatter:on
   }
 
   @Test
-  public void testThrowableConsumer() throws Throwable {
-    Trebuchet.ThrowableConsumer<Integer> isOdd = (i) -> System.out.println(i % 2 != 0 ? "odd" : "even");
-    int i = 10;
-    isOdd.accept(i);
-    try {
-      isOdd.accept(null);
-      fail("must raise NullPointerException .");
-    } catch (Throwable e) {
-      assertTrue(e instanceof NullPointerException);
-    }
+  public void triConsumer() {
+    List<Integer> actuals = new ArrayList<>();
+    Trebuchet.TriConsumer<Integer, Integer, Integer> consumer = (x, y, z) -> actuals.add(x + y + z);
+    IntStream.rangeClosed(0, 9).forEach((x) -> consumer.accept(x, x + 1, x + 2));
+    assertThat(actuals.toString(), is("[3, 6, 9, 12, 15, 18, 21, 24, 27, 30]"));
+    actuals.clear();
+    IntStream.rangeClosed(0, 9).forEach((x) -> consumer.andThen((a, b, c) -> actuals.add(a + b + c)).accept(x, x + 1, x + 2));
+    assertThat(actuals.toString(), is("[3, 3, 6, 6, 9, 9, 12, 12, 15, 15, 18, 18, 21, 21, 24, 24, 27, 27, 30, 30]"));
   }
 
   @Test
-  public void testThrowableBiConsumer() throws Throwable {
-    Trebuchet.ThrowableBiConsumer<Integer, Integer> divider = (x, y) -> System.out.println(x / y);
-    divider.accept(10, 10);
-    try {
-      divider.accept(null, null);
-      fail("must raise NullPointerException .");
-    } catch (Throwable e) {
-      assertTrue(e instanceof NullPointerException);
+  public void triFunction() {
+    @AllArgsConstructor
+    @EqualsAndHashCode
+    @ToString
+    class A {
+      private final int a;
+      private final String b;
+      private final String c;
     }
-    try {
-      divider.accept(10, 0);
-      fail("must raise ArithmeticException .");
-    } catch (Throwable e) {
-      assertTrue(e instanceof ArithmeticException);
+    @AllArgsConstructor
+    @EqualsAndHashCode
+    @ToString
+    class B {
+      private final A a;
     }
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void testThrowableFunction() throws Throwable {
-    Trebuchet.ThrowableFunction<Integer, Boolean> isOdd = (i) -> (i % 2 != 0);
-    assertFalse(isOdd.apply(10));
-    assertTrue(isOdd.apply(1));
-    isOdd.apply(null);
+    assertThat(((Trebuchet.TriFunction<Integer, String, String, A>) (x, y, z) -> new A(x, y, z)).apply(0, "南無阿弥陀仏".substring(0, 1), "南無阿弥陀仏".substring(1)), is(new A(0, "南", "無阿弥陀仏")));
+    assertThat(((Trebuchet.TriFunction<Integer, String, String, A>) (x, y, z) -> new A(x, y, z)).andThen(B::new).apply(0, "南無阿弥陀仏".substring(0, 1), "南無阿弥陀仏".substring(1)), is(new B(new A(0, "南", "無阿弥陀仏"))));
   }
 
   @Test
-  public void testThrowableBiFunction() throws Throwable {
-    Trebuchet.ThrowableBiFunction<Integer, Integer, Integer> divider = (x, y) -> (x / y);
-    assertEquals(1, (int) divider.apply(10, 10));
-    assertEquals(2, (int) divider.apply(10, 5));
-    assertEquals(3, (int) divider.apply(10, 3));
-    assertEquals(0, (int) divider.apply(0, 4));
-    try {
-      divider.apply(null, null);
-      fail("must raise NullPointerException .");
-    } catch (Throwable e) {
-      assertTrue(e instanceof NullPointerException);
-    }
-    try {
-      divider.apply(10, 0);
-      fail("must raise ArithmeticException .");
-    } catch (Throwable e) {
-      assertTrue(e instanceof ArithmeticException);
-    }
-  }
+  public void trinaryOperator() {
 
-  @Test
-  public void testAccept() {
-    // @formatter:off
-    final StringJoiner expectOfOut = new StringJoiner(System.getProperty("line.separator", "\n"), "", System.getProperty("line.separator", "\n"));
-    final StringJoiner expectOfError = new StringJoiner(System.getProperty("line.separator", "\n"), "", System.getProperty("line.separator", "\n"));
-
-    final Trebuchet.ThrowableConsumer<Integer> divider = (i) -> System.out.println(10 / i);
-    Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null})
-    .forEach(i -> {
-      try {
-        divider.accept(i);
-        expectOfOut.add(Integer.toString(10 / i));
-      } catch (Throwable e) {
-        System.err.println(e.getClass().getSimpleName());
-        expectOfError.add(e.getClass().getSimpleName());
+    @ToString
+    @EqualsAndHashCode
+    class A implements Comparable<A> {
+      @Override
+      public int compareTo(A o) {
+        return this.toString().compareTo(Objects.toString(o, ""));
       }
-    });
-    assertEquals(expectOfOut.toString(), outContent.toString());
-    assertEquals(expectOfError.toString(), errContent.toString());
+    }
 
-    final Consumer<Integer> trebuchet = Trebuchet.orElse((x) -> {System.out.println(10 / x);expectOfOut.add(Integer.toString(10 / x));}, (e, x) -> {System.err.println(e.getClass().getSimpleName());expectOfError.add(e.getClass().getSimpleName());});
-    Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).forEach(trebuchet::accept);
+    @ToString(callSuper = true)
+    @EqualsAndHashCode(callSuper = true)
+    class B extends A {}
 
-    assertEquals(expectOfOut.toString(), outContent.toString());
-    assertEquals(expectOfError.toString(), errContent.toString());
-    // @formatter:on
+    @ToString(callSuper = true)
+    @EqualsAndHashCode(callSuper = true)
+    class C extends B {}
+
+    assertThat(TrinaryOperator.minBy(A::compareTo).apply(new A(), new B(), new C()), is(new A()));
+    assertThat(TrinaryOperator.minBy(A::compareTo).apply(new C(), new B(), new A()), is(new A()));
+    assertThat(TrinaryOperator.minBy(A::compareTo).apply(new C(), new C(), new B()), is(new B()));
+    assertThat(TrinaryOperator.maxBy(A::compareTo).apply(new A(), new B(), new C()), is(new C()));
+    assertThat(TrinaryOperator.maxBy(A::compareTo).apply(new C(), new B(), new A()), is(new C()));
+    assertThat(TrinaryOperator.maxBy(A::compareTo).apply(new B(), new B(), new C()), is(new C()));
+    assertThat(TrinaryOperator.maxBy(A::compareTo).apply(new A(), null, null), is(new A()));
+    assertThat(TrinaryOperator.maxBy(A::compareTo).apply((C) null, null, null), is((A) null));
+    assertThat(TrinaryOperator.minBy(A::compareTo).apply(new A(), null, null), is(new A()));
+    assertThat(TrinaryOperator.minBy(A::compareTo).apply((C) null, null, null), is((A) null));
   }
 
   @Test
-  public void testAcceptBi() {
-    Trebuchet.ThrowableBiConsumer<Integer, Integer> divider = (x, y) -> System.out.println(x / y);
-    final StringJoiner expectOfOut = new StringJoiner(System.getProperty("line.separator", "\n"), "", System.getProperty("line.separator", "\n"));
-    final StringJoiner expectOfError = new StringJoiner(System.getProperty("line.separator", "\n"), "", System.getProperty("line.separator", "\n"));
-    // @formatter:off
-    Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null})
-    .forEach(i -> {
-      try {
-        divider.accept(i, i - 1);
-        expectOfOut.add(Integer.toString(i / (i - 1)));
-      } catch (Throwable e) {
-        System.err.println(e.getClass().getSimpleName());
-        expectOfError.add(e.getClass().getSimpleName());
-      }
-    });
-    assertEquals(expectOfOut.toString(), outContent.toString());
-    assertEquals(expectOfError.toString(), errContent.toString());
-
-    final BiConsumer<Integer, Integer> trebuchet = Trebuchet.orElse((x, y) -> {System.out.println(x / y);expectOfOut.add(Integer.toString(x / y));}, (e, x) -> {System.err.println(e.getClass().getSimpleName());expectOfError.add(e.getClass().getSimpleName());});
-    Arrays.stream(new Integer[]{0, 1, 2, 3, 4}).forEach((i) -> trebuchet.accept(i, i - 1));
-
-    assertEquals(expectOfOut.toString(), outContent.toString());
-    assertEquals(expectOfError.toString(), errContent.toString());
-    // @formatter:on
-  }
-
-  @Test
-  public void testApply() {
-    Trebuchet.ThrowableFunction<Integer, Integer> divider = (i) -> (10 / i);
-    Integer[] expect = {0, 10, 5, 3, 2, 0};
-    // @formatter:off
-    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null})
-      .map(i -> {
-        try {
-          return divider.apply(i);
-        } catch (Throwable e) {}
-        return 0;
-      }).toArray(Integer[]::new));
-
-    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Trebuchet.orElse(divider, (e, x) -> 0).apply(i)).toArray(Integer[]::new));
-    // @formatter:on
-  }
-
-  @Test
-  public void testApplyBi() {
-    BiFunction<Integer, Integer, Integer> divider = (x, y) -> (x / (y - 1));
-    Integer[] expect = {0, 0, 2, 1, 1, 0};
-    // @formatter:off
-    assertArrayEquals(expect,
-      Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null})
-        .map(i -> {
-          try {
-            return divider.apply(i, i);
-          } catch (Throwable e) {}
-          return 0;
-        }).toArray(Integer[]::new));
-
-    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Trebuchet.orElse(divider, (e, x) -> 0).apply(i, i)).toArray(Integer[]::new));
-    // @formatter:on
-  }
-
-  @Test
-  public void testStraightApply() {
-    UnaryOperator<Integer> one = (i) -> (i / i);
-    Integer[] expect = {0, 1, 1, 1, 1, 0};
-    // @formatter:off
-    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null})
-      .map(i -> {
-        try {
-          return one.apply(i);
-        } catch (Throwable e) {}
-        return 0;
-      }).toArray(Integer[]::new));
-
-    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Trebuchet.orElse(one, (e, x) -> 0).apply(i)).toArray(Integer[]::new));
-    // @formatter:on
-  }
-
-  @Test
-  public void testStraightApplyBi() {
-    BinaryOperator<Integer> divider = (x, y) -> (x / (y - 1));
-    Integer[] expect = {0, 0, 2, 1, 1, 0};
-    // @formatter:off
-    assertArrayEquals(expect,
-      Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null})
-        .map(i -> {
-          try {
-            return divider.apply(i, i);
-          } catch (Throwable e) {}
-          return 0;
-        }).toArray(Integer[]::new));
-
-    assertArrayEquals(expect, Arrays.stream(new Integer[]{0, 1, 2, 3, 4, null}).map(i -> Trebuchet.orElse(divider, (e, x) -> 0).apply(i, i)).toArray(Integer[]::new));
-    // @formatter:on
+  public void triPredicate() {
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).test(0, 1, 2), is(false));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).test(1, 2, 3), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).negate().test(0, 1, 2), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).negate().negate().test(1, 2, 3), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).and((a, b, c) -> (a + b + c) % 3 == 0).test(2, 3, 4), is(false));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).and((a, b, c) -> (a + b + c) % 3 == 0).test(3, 3, 4), is(false));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).and((a, b, c) -> (a + b + c) % 3 == 0).test(3, 4, 5), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(1, 2, 2), is(false));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(0, 1, 2), is(true));
+    assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(1, 2, 3), is(true));
   }
 }

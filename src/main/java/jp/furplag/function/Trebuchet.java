@@ -16,10 +16,16 @@
 
 package jp.furplag.function;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * code snippets for some problems when handling java.lang.Throwables in using Stream API .
@@ -30,246 +36,315 @@ import java.util.function.Function;
 public interface Trebuchet {
 
   /**
-   * {@link java.util.function.BiConsumer BiConsumer} now get enable to throw {@link Throwable} .
+   * represents an operation that accepts two input arguments and returns no result .
+   * this is the three-arity specialization of {@link Consumer} .
+   * unlike most other functional interfaces, {@code TriConsumer} is expected to operate via side-effects .
    *
    * @author furplag
    *
-   * @param <T> the type of the first argument to the function
-   * @param <U> the type of the second argument to the function
-   * @see java.util.function.BiConsumer
+   * @param <T> the type of the first argument to the operation
+   * @param <U> the type of the second argument to the operation
+   * @param <V> the type of the third argument to the operation
+   * @see {@link Consumer}
    */
   @FunctionalInterface
-  public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
+  static interface TriConsumer<T, U, V> {
 
     /**
-     * {@inheritDoc}
-     */
-    @lombok.Generated
-    @Override
-    default void accept(T t, U u) {/* @formatter:off */try {accept0(t, u);} catch (Throwable ex) {sneakyThrow(ex);}/* @formatter:on */}
-
-    /**
-     * Performs this operation on the given arguments.
+     * performs this operation on the given arguments .
      *
      * @param t the first input argument
      * @param u the second input argument
-     * @throws Throwable anything thrown
+     * @param v the third input argument
      */
-    void accept0(T t, U u) throws Throwable;
+    void accept(T t, U u, V v);
 
     /**
-     * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
+     * returns a composed {@code TriConsumer} that performs, in sequence, this operation followed by the {@code after} operation .
+     * if performing either operation throws an exception, it is relayed to the caller of the composed operation .
+     * if performing this operation throws an exception, the {@code after} operation will not be performed .
      *
-     * @param <T> the type of the first argument to the function
-     * @param <U> the type of the second argument to the function
-     * @param <E> anything thrown
-     * @param functional {@link ThrowableBiConsumer}
-     * @param fallen {@link BiConsumer}
-     * @return {@link ThrowableBiConsumer#accept(Object, Object) functional.accept(T, U)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(E, T)} if error occured
+     * @param after the operation to perform after this operation
+     * @return a composed {@code TriConsumer} that performs in sequence this operation followed by the {@code after} operation
      */
-    @SuppressWarnings({ "unchecked" })
-    private static <T, U, E extends Throwable> BiConsumer<T, U> orElse(final ThrowableBiConsumer<T, U> functional, final BiConsumer<E, T> fallen) {
-      return (t, u) -> {/* @formatter:off */try {functional.accept(t, u);} catch (Throwable ex) {fallen.accept((E) ex, t);}/* @formatter:off */};
+    default TriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
+      Objects.requireNonNull(after);
+
+      return (t, u, v) -> {/* @formatter:off */accept(t, u, v); after.accept(t, u, v);/* @formatter:on */};
     }
   }
 
   /**
-   * {@link java.util.function.BiFunction BiFunction} now get enable to throw {@link Throwable} .
+   * represents a function that accepts three arguments and produces a result .
+   * this is the three-arity specialization of {@link Function} .
    *
    * @author furplag
    *
    * @param <T> the type of the first argument to the function
    * @param <U> the type of the second argument to the function
+   * @param <V> the type of the third argument to the function
    * @param <R> the type of the result of the function
-   * @see java.util.function.BiFunction
+   * @see {@link Function}
    */
   @FunctionalInterface
-  public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
+  static interface TriFunction<T, U, V, R> {
 
     /**
-     * {@inheritDoc}
+     * returns a composed function that first applies this function to its input, and then applies the {@code after} function to the result .
+     * if evaluation of either function throws an exception, it is relayed to the caller of the composed function .
+     *
+     * @param <W> the type of output of the {@code after} function, and of the composed function
+     * @param after the function to apply after this function is applied
+     * @return a composed function that first applies this function and then applies the {@code after} function
+     * @throws NullPointerException if after is null
      */
-    @lombok.Generated
-    @Override
-    default R apply(T t, U u) {/* @formatter:off */try {return apply0(t, u);} catch (Throwable ex) {sneakyThrow(ex);} return null;/* @formatter:on */}
+    default <W> TriFunction<T, U, V, W> andThen(Function<? super R, ? extends W> after) {
+      Objects.requireNonNull(after);
+
+      return (t, u, v) -> after.apply(apply(t, u, v));
+    }
 
     /**
-     * Applies this function to the given arguments.
+     * applies this function to the given arguments .
      *
      * @param t the first function argument
      * @param u the second function argument
+     * @param v the third function argument
      * @return the function result
-     * @throws Throwable anything thrown
      */
-    R apply0(T t, U u) throws Throwable;
-
-    /**
-     * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-     *
-     * @param <T> the type of the first argument to the function
-     * @param <U> the type of the second argument to the function
-     * @param <R> the type of the result of the function
-     * @param <E> anything thrown
-     * @param functional {@link ThrowableBiFunction}
-     * @param fallen {@link BiFunction}
-     * @return {@link ThrowableBiFunction#apply(Object, Object) functional.apply(T, U)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
-     */
-    @SuppressWarnings({ "unchecked" })
-    private static <T, U, R, E extends Throwable> BiFunction<T, U, R> orElse(final ThrowableBiFunction<T, U, R> functional, final BiFunction<E, T, R> fallen) {
-      return (t, u) -> {/* @formatter:off */try {return functional.apply(t, u);} catch (Throwable ex) {return fallen.apply((E) ex, t);}/* @formatter:off */};
-    }
+    R apply(T t, U u, V v);
   }
 
   /**
-   * {@link java.util.function.Consumer Consumer} now get enable to throw {@link Throwable} .
+   * represents an operation upon two operands of the same type, producing a result of the same type as the operands .
+   * this is a specialization of {@link TriFunction} for the case where the operands and the result are all of the same type .
    *
    * @author furplag
    *
-   * @param <T> the type of the input to the function
-   * @see java.util.function.Consumer
+   * @param <T> the type of the operand and result of the operator
+   * @see TriFunction
+   * @see {@link UnaryOperator}
    */
   @FunctionalInterface
-  public interface ThrowableConsumer<T> extends Consumer<T> {
+  public interface TrinaryOperator<T> extends TriFunction<T, T, T, T> {
 
     /**
-     * {@inheritDoc}
-     */
-    @lombok.Generated
-    @Override
-    default void accept(T t) {/* @formatter:off */try {accept0(t);} catch (Throwable ex) {sneakyThrow(ex);}/* @formatter:on */}
-
-    /**
-     * Performs this operation on the given argument.
+     * returns a {@link TrinaryOperator} which returns the greater of three elements according to the specified {@code Comparator} .
      *
-     * @param t the input argument
-     * @throws Throwable anything thrown
+     * @param <T> the type of the input arguments of the comparator
+     * @param comparator a {@code Comparator} for comparing the three values
+     * @return a {@code TrinaryOperator} which returns the greater of its operands, according to the supplied {@code Comparator}
+     * @throws NullPointerException if the argument is null
      */
-    void accept0(T t) throws Throwable;
+    static <T> TrinaryOperator<T> maxBy(Comparator<? super T> comparator) {
+      Objects.requireNonNull(comparator);
+
+      return (a, b, c) -> stream(a, b, c).max(comparator).orElse(null);
+    }
 
     /**
-     * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
+     * returns a {@link TrinaryOperator} which returns the lesser of three elements according to the specified {@code Comparator} .
      *
-     * @param <T> the type of the input to the function
-     * @param <E> anything thrown
-     * @param functional {@link ThrowableConsumer}
-     * @param fallen {@link BiConsumer}
-     * @return {@link ThrowableConsumer#accept(Object) functional.accept(T)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(E, T)} if error occured
+     * @param <T> the type of the input arguments of the comparator
+     * @param comparator a {@code Comparator} for comparing the three values
+     * @return a {@code TrinaryOperator} which returns the lesser of its operands, according to the supplied {@code Comparator}
+     * @throws NullPointerException if the argument is null
      */
-    @SuppressWarnings({ "unchecked" })
-    private static <T, E extends Throwable> Consumer<T> orElse(final ThrowableConsumer<T> functional, final BiConsumer<E, T> fallen) {
-      return (t) -> {/* @formatter:off */try {functional.accept(t);} catch (Throwable ex) {fallen.accept((E) ex, t);}/* @formatter:off */};
+    static <T> TrinaryOperator<T> minBy(Comparator<? super T> comparator) {
+      Objects.requireNonNull(comparator);
+
+      return (a, b, c) -> stream(a, b, c).min(comparator).orElse(null);
+    }
+
+    /**
+     * shorthand for {@code Stream.of(x0, x1, x2).filter((t) -> Objects.nonNull(t))} .
+     *
+     * @param <T> the type of the operand and result of the operator
+     * @param ts the value of the operand of the operator
+     * @return {@link Stream}
+     */
+    @SafeVarargs
+    private static <T> Stream<T> stream(T... ts) {
+      return Arrays.stream(ts).filter(Objects::nonNull);
     }
   }
 
   /**
-   * {@link java.util.function.Function Function} now get enable to throw {@link Throwable} .
+   * represents a predicate (boolean-valued function) of three arguments .
+   * this is the three-arity specialization of {@link Predicate} .
    *
    * @author furplag
+   *
+   * @param <T> the type of the first argument to the predicate
+   * @param <U> the type of the second argument to the predicate
+   * @param <V> the type of the third argument to the predicate
+   * @see TriFunction
+   * @see {@link Predicate}
+   */
+  @FunctionalInterface
+  public interface TriPredicate<T, U, V> extends TriFunction<T, U, V, Boolean> {
+
+    /**
+     * returns a composed predicate that represents a short-circuiting logical AND of this predicate and another .
+     * when evaluating the composed predicate, if this predicate is {@code false}, then the {@code other} predicate is not evaluated .
+     *
+     * <p>any exceptions thrown during evaluation of either predicate are relayed to the caller;
+     * if evaluation of this predicate throws an exception, the {@code other} predicate will not be evaluated .</p>
+     *
+     * @param other a predicate that will be logically-ANDed with this predicate
+     * @return a composed predicate that represents the short-circuiting logical AND of this predicate and the {@code other} predicate
+     * @throws NullPointerException if other is null
+     */
+    default TriPredicate<T, U, V> and(TriPredicate<? super T, ? super U, ? super V> other) {
+      Objects.requireNonNull(other);
+
+      return (t, u, v) -> test(t, u, v) && other.test(t, u, v);
+    }
+
+    /**
+     * returns a predicate that represents the logical negation of this predicate .
+     *
+     * @return a predicate that represents the logical negation of this predicate
+     */
+    default TriPredicate<T, U, V> negate() {
+      return (t, u, v) -> !test(t, u, v);
+    }
+
+    /**
+     * returns a composed predicate that represents a short-circuiting logical OR of this predicate and another .
+     * when evaluating the composed predicate, if this predicate is {@code true}, then the {@code other} predicate is not evaluated .
+     *
+     * <p>any exceptions thrown during evaluation of either predicate are relayed to the caller;
+     * if evaluation of this predicate throws an exception, the {@code other} predicate will not be evaluated .</p>
+     *
+     * @param other a predicate that will be logically-ORed with this predicate
+     * @return a composed predicate that represents the short-circuiting logical OR of this predicate and the {@code other} predicate
+     * @throws NullPointerException if other is null
+     */
+    default TriPredicate<T, U, V> or(TriPredicate<? super T, ? super U, ? super V> other) {
+      Objects.requireNonNull(other);
+
+      return (t, u, v) -> test(t, u, v) || other.test(t, u, v);
+    }
+
+    /**
+     * evaluates this predicate on the given argument .
+     *
+     * @param t the first input argument
+     * @param u the second input argument
+     * @param v the third input argument
+     * @return {@code true} if the input argument matches the predicate, otherwise {@code false}
+     */
+    default boolean test(T t, U u, V v) {/* @formatter:off */return apply(t, u, v);/* @formatter:on */}
+  }
+
+  /**
+   * returns specified {@code consumer}, or the {@link BiConsumer} which do nothing if this is null .
+   *
+   * @param <T> the type of the first argument to the operation
+   * @param <U> the type of the second argument to the operation
+   * @param consumer {@link BiConsumer}
+   * @return specified {@code consumer}, or the {@link BiConsumer} which do nothing if this is null
+   */
+  static <T, U> BiConsumer<? super T, ? super U> defaults(final BiConsumer<T, ? super U> consumer) {
+    return Objects.requireNonNullElse(consumer, (t, e) -> {/* do nothing . */});
+  }
+
+  /**
+   * returns specified {@code function}, or returns the {@link BiFunction} which always return null if {@code function} is null .
+   *
+   * @param <T> the type of the first argument to the function
+   * @param <U> the type of the second argument to the function
+   * @param <R> the type of the result of the function
+   * @param function {@link BiFunction}
+   * @return specified {@code function}, or returns the {@link BiFunction} which always return null if {@code function} is null
+   */
+  static <T, U, R> BiFunction<? super T, ? super U, ? extends R> defaults(final BiFunction<? super T, ? super U, ? extends R> function) {
+    return Objects.requireNonNullElse(function, (t, u) -> null);
+  }
+
+  /**
+   * returns specified {@code predicate}, or returns the {@link BiPredicate} which always return false if {@code predicate} is null .
+   *
+   * @param <T> the type of the first argument to the predicate
+   * @param <U> the type of the second argument to the predicate
+   * @param predicate {@link BiPredicate}
+   * @return specified {@code predicate}, or returns the {@link BiPredicate} which always return false if {@code predicate} is null
+   */
+  static <T, U> BiPredicate<? super T, ? super U> defaults(final BiPredicate<? super T, ? super U> predicate) {
+    return Objects.requireNonNullElse(predicate, (t, u) -> false);
+  }
+
+  /**
+   * returns specified {@code consumer}, or the {@link Consumer} which do nothing if this is null .
+   *
+   * @param <T> the type of the input to the operation
+   * @param consumer {@link Consumer}
+   * @return specified {@code consumer}, or the {@link Consumer} which do nothing if this is null
+   */
+  static <T> Consumer<? super T> defaults(final Consumer<T> consumer) {
+    return Objects.requireNonNullElse(consumer, (t) -> {/* do nothing . */});
+  }
+
+  /**
+   * returns specified {@code function}, or returns the {@link Function} which always return null if {@code function} is null .
    *
    * @param <T> the type of the input to the function
    * @param <R> the type of the result of the function
-   * @see java.util.function.Function
+   * @param function {@link Function}
+   * @return specified {@code function}, or returns the {@link Function} which always return null if {@code function} is null
    */
-  @FunctionalInterface
-  public interface ThrowableFunction<T, R> extends Function<T, R> {
-
-    /**
-     * {@inheritDoc}
-     */
-    @lombok.Generated
-    @Override
-    default R apply(T t) {/* @formatter:off */try {return apply0(t);} catch (Throwable ex) {sneakyThrow(ex);} return null;/* @formatter:on */}
-
-    /**
-     * Applies this function to the given arguments.
-     *
-     * @param t the first function argument
-     * @return the function result
-     * @throws Throwable anything thrown
-     */
-    R apply0(T t) throws Throwable;
-
-    /**
-     * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-     *
-     * @param <T> the type of the input to the function
-     * @param <R> the type of the result of the function
-     * @param <E> anything thrown
-     * @param functional {@link ThrowableFunction}
-     * @param fallen {@link BiFunction}
-     * @return {@link ThrowableFunction#apply(Object) functional.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
-     */
-    @SuppressWarnings({ "unchecked" })
-    private static <T, R, E extends Throwable> Function<T, R> orElse(final ThrowableFunction<T, R> functional, final BiFunction<E, T, R> fallen) {
-      return (t) -> {/* @formatter:off */try {return functional.apply(t);} catch (Throwable ex) {return fallen.apply((E) ex, t);}/* @formatter:off */};
-    }
+  static <T, R> Function<? super T, ? extends R> defaults(final Function<? super T, ? extends R> function) {
+    return Objects.requireNonNullElse(function, (t) -> null);
   }
 
   /**
-   * the fork of {@code lombok.Lombok.sneakyThrow(Throwable)} .
+   * returns specified {@code predicate}, or returns the {@link Predicate} which always return false if {@code predicate} is null .
+   *
+   * @param <T> the type of the input to the predicate
+   * @param predicate {@link Predicate}
+   * @return specified {@code predicate}, or returns the {@link Predicate} which always return false if {@code predicate} is null
+   */
+  static <T> Predicate<? super T> defaults(final Predicate<? super T> predicate) {
+    return Objects.requireNonNullElse(predicate, (t) -> false);
+  }
+
+  /**
+   * returns specified {@code consumer}, or the {@link TriConsumer} which do nothing if this is null .
+   *
+   * @param <T> the type of the first argument to the operation
+   * @param <U> the type of the second argument to the operation
+   * @param <V> the type of the third argument to the operation
+   * @param consumer {@link TriConsumer}
+   * @return specified {@code consumer}, or the {@link TriConsumer} which do nothing if this is null
+   */
+  static <T, U, V> TriConsumer<? super T, ? super U, ? super V> defaults(final TriConsumer<T, ? super U, ? super V> consumer) {
+    return Objects.requireNonNullElse(consumer, (t, u, v) -> {/* do nothing . */});
+  }
+
+  /**
+   * returns specified {@code function}, or returns the {@link TriFunction} which always return null if {@code function} is null .
+   *
+   * @param <T> the type of the first argument to the function
+   * @param <U> the type of the second argument to the function
+   * @param <V> the type of the third argument to the function
+   * @param <R> the type of the result of the function
+   * @param function {@link TriFunction}
+   * @return specified {@code function}, or returns the {@link TriFunction} which always return null if {@code function} is null
+   */
+  static <T, U, V, R> TriFunction<? super T, ? super U, ? super V, ? extends R> defaults(final TriFunction<T, ? super U, ? super V, ? extends R> function) {
+    return Objects.requireNonNullElse(function, (t, u, v) -> null);
+  }
+
+  /**
+   * the fork of {@link lombok.Lombok#sneakyThrow(Throwable)} .
    *
    * @param <E> anything thrown
    * @param ex anything thrown
    * @throws E anything thrown
    */
   @SuppressWarnings({ "unchecked" })
-  private static <E extends Throwable> void sneakyThrow(final Throwable ex) throws E {
+  static <E extends Throwable> void sneakyThrow(final Throwable ex) throws E {
     throw (E) (ex == null ? new IllegalArgumentException("hmm, no way call me with null .") : ex);
-  }
-
-  /**
-   * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-   *
-   * @param <T> the type of the first argument to the function
-   * @param <U> the type of the second argument to the function
-   * @param <E> anything thrown
-   * @param functional {@link BiConsumer}
-   * @param fallen {@link BiConsumer}
-   * @return {@link BiConsumer#accept(Object, Object) functional.accept(T, U)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(E, T)} if error occured
-   */
-  static <T, U, E extends Throwable> BiConsumer<T, U> orElse(final BiConsumer<T, U> functional, final BiConsumer<E, T> fallen) {
-    return ThrowableBiConsumer.orElse(functional::accept, fallen);
-  }
-
-  /**
-   * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-   *
-   * @param <T> the type of the first argument to the function
-   * @param <U> the type of the second argument to the function
-   * @param <R> the type of the result of the function
-   * @param <E> anything thrown
-   * @param functional {@link BiFunction}
-   * @param fallen {@link BiFunction}
-   * @return {@link BiFunction#apply(Object, Object) functional.apply(T, U)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(E, T)} if error occured
-   */
-  static <T, U, R, E extends Throwable> BiFunction<T, U, R> orElse(final BiFunction<T, U, R> functional, final BiFunction<E, T, R> fallen) {
-    return ThrowableBiFunction.orElse(functional::apply, fallen);
-  }
-
-  /**
-   * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-   *
-   * @param <T> the type of the input to the function
-   * @param <E> anything thrown
-   * @param functional {@link Consumer}
-   * @param fallen {@link BiConsumer}
-   * @return {@link Consumer#accept(Object) functional.accept(T)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(E, T)} if error occured
-   */
-  static <T, E extends Throwable> Consumer<T> orElse(final Consumer<T> functional, final BiConsumer<E, T> fallen) {
-    return ThrowableConsumer.orElse(functional::accept, fallen);
-  }
-
-  /**
-   * should never write "ugly" try-catch block for {@link Throwable} (s) in stream .
-   *
-   * @param <T> the type of the input to the function
-   * @param <R> the type of the result of the function
-   * @param <E> anything thrown
-   * @param functional {@link Function}
-   * @param fallen {@link Function}
-   * @return {@link Function#apply(Object) functional.apply(T)} if done it normally, or {@link BiFunction#apply(Object, Object) fallen.apply(Throwable, T)} if error occured
-   */
-  static <T, R, E extends Throwable> Function<T, R> orElse(final Function<T, R> functional, final BiFunction<E, T, R> fallen) {
-    return ThrowableFunction.orElse(functional::apply, fallen);
   }
 }
