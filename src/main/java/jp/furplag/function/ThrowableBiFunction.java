@@ -183,7 +183,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @return the result of {@link #apply(Object, Object) function.apply(T, U)} if done it normally, or {@link Supplier#get() fallen.get()} if error occurred
    */
   static <T, U, R> R orElseGet(final T t, final U u, final ThrowableBiFunction<? super T, U, ? extends R> function, Supplier<? extends R> fallen) {
-    return orElse(t, u, function, (x, y, ex) -> Objects.requireNonNullElse(fallen, () -> null).get());
+    return orElse(t, u, function, (x, y, ex) -> Trebuchet.defaults(fallen).get());
   }
 
   /**
@@ -198,19 +198,15 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @return the result of {@link #apply(Object, Object) function.apply(T, U)} if done it normally, or {@code null} if error occurred
    */
   static <T, U, R> R orNull(final T t, final U u, final ThrowableBiFunction<? super T, U, ? extends R> function) {
-    return orElseGet(t, u, function, () -> null);
+    return orElseGet(t, u, function, null);
   }
 
   /**
    * {@inheritDoc}
-   *
-   * @throws NullPointerException if {@code after} is null
    */
   @Override
   default <V> ThrowableBiFunction<T, U, V> andThen(Function<? super R, ? extends V> after) {
-    Objects.requireNonNull(after);
-
-    return (t, u) -> {/* @formatter:off */try {return after.apply(apply(t, u));} catch (Throwable e) {Trebuchet.sneakyThrow(e);} return null;/* @formatter:on */};
+    return (t, u) -> Trebuchet.defaults(after).apply(apply(t, u));
   }
 
   /**

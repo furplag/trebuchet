@@ -128,8 +128,6 @@ public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
    */
   @Override
   default ThrowableBiConsumer<T, U> andThen(BiConsumer<? super T, ? super U> after) {
-    Objects.requireNonNull(after);
-
-    return (t, u) -> {/* @formatter:off */try {acceptOrThrow(t, u); after.accept(t, u);} catch (Throwable e) {Trebuchet.sneakyThrow(e);}/* @formatter:on */};
+    return (t, u) -> {/* @formatter:off */accept(t, u); Trebuchet.defaults(after).accept(t, u);/* @formatter:on */};
   }
 }

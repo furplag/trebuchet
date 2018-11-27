@@ -57,7 +57,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    * @return {@link ThrowableConsumer}
    */
   static <T> ThrowableConsumer<T> of(final ThrowableConsumer<? super T> consumer, final Consumer<? super T> fallen) {
-    return of(consumer, (t, e) -> Objects.requireNonNullElse(fallen, (x) -> {/* do nothing . */}).accept(t));
+    return of(consumer, (t, e) -> Trebuchet.defaults(fallen).accept(t));
   }
 
   /**
@@ -117,8 +117,6 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    */
   @Override
   default ThrowableConsumer<T> andThen(Consumer<? super T> after) {
-    Objects.requireNonNull(after);
-
-    return (t) -> {/* @formatter:off */try {acceptOrThrow(t); after.accept(t);} catch (Throwable e) {Trebuchet.sneakyThrow(e);}/* @formatter:on */};
+    return (t) -> {/* @formatter:off */accept(t); Trebuchet.defaults(after).accept(t);/* @formatter:on */};
   }
 }

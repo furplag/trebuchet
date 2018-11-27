@@ -143,4 +143,10 @@ public class TrebuchetTest {
     assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(0, 1, 2), is(true));
     assertThat(((Trebuchet.TriPredicate<Integer, Integer, Integer>) (x, y, z) -> (x + y + z) % 2 == 0).or((a, b, c) -> (a + b + c) % 3 == 0).test(1, 2, 3), is(true));
   }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void paintItGreen() {
+    Trebuchet.TriPredicate<Integer, Integer, Integer> isOdd = (t, u, v) -> (t + u + v) % 2 != 0;
+    isOdd.andThen((t) -> !t);
+  }
 }

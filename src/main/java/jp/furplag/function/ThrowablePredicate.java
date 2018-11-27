@@ -58,9 +58,8 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
    * @return {@link ThrowablePredicate}
    * @throws NullPointerException if arguments contains null
    */
-  @SuppressWarnings({ "unchecked" })
   static <T, E extends Throwable> ThrowablePredicate<T> of(final ThrowablePredicate<? super T> predicate, final Predicate<? super T> fallen) {
-    return of(predicate, (t, e) -> Trebuchet.defaults(fallen).test((T) t))::apply;
+    return of(predicate, (T t, E e) -> Trebuchet.defaults(fallen).test(t))::apply;
   }
 
   /**
@@ -128,4 +127,38 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
   @Override
   default boolean test(T t)  {/* @formatter:off */try {return applyOrThrow(t);} catch (Throwable e) {Trebuchet.sneakyThrow(e);} return false;/* @formatter:on */};
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  default ThrowablePredicate<T> negate() {
+    return (t) -> !test(t);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  default ThrowablePredicate<T> and(Predicate<? super T> other) {
+    return (t) -> test(t) && Objects.requireNonNullElse(Trebuchet.defaults(other).test(t), false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  default ThrowablePredicate<T> or(Predicate<? super T> other) {
+    return (t) -> test(t) || Objects.requireNonNullElse(Trebuchet.defaults(other).test(t), false);
+  }
+
+  /**
+   * Throws {@link UnsupportedOperationException} .
+   *
+   * @return never
+   * @throws UnsupportedOperationException as this operation is not supported
+   */
+  @Override
+  default <V> ThrowableFunction<T, V> andThen(Function<? super Boolean, ? extends V> after) {
+    throw new UnsupportedOperationException();
+  }
 }

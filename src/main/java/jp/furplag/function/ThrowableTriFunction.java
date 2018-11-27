@@ -161,7 +161,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @return the result of {@link #apply(Object, Object, Object) function.apply(T, U, V)} if done it normally, or {@link Supplier#get() fallen.get()} if error occurred
    */
   static <T, U, V, R> R orElseGet(final T t, final U u, final V v, final ThrowableTriFunction<? super T, ? super U, ? super V, ? extends R> function, final Supplier<? extends R> fallen) {
-    return of(function, (ex) -> Objects.requireNonNullElse(fallen, () -> null).get()).apply(t, u, v);
+    return of(function, (ex) -> Trebuchet.defaults(fallen).get()).apply(t, u, v);
   }
 
   /**
@@ -191,9 +191,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @throws NullPointerException if after is null
    */
   default <W> ThrowableTriFunction<T, U, V, W> andThen(Function<? super R, ? extends W> after) {
-      Objects.requireNonNull(after);
-
-      return (t, u, v) -> after.apply(apply(t, u, v));
+    return (t, u, v) -> Trebuchet.defaults(after).apply(apply(t, u, v));
   }
 
   /**

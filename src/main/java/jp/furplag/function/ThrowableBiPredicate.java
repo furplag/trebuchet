@@ -19,6 +19,7 @@ package jp.furplag.function;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import jp.furplag.function.Trebuchet.TriPredicate;
@@ -184,9 +185,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    */
   @Override
   default ThrowableBiPredicate<T, U> and(BiPredicate<? super T, ? super U> other) {
-    Objects.requireNonNull(other);
-
-    return (t, u) -> test(t, u) && other.test(t, u);
+    return (t, u) -> test(t, u) && Objects.requireNonNullElse(Trebuchet.defaults(other).test(t, u), false);
   }
 
   /**
@@ -194,8 +193,17 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    */
   @Override
   default ThrowableBiPredicate<T, U> or(BiPredicate<? super T, ? super U> other) {
-    Objects.requireNonNull(other);
+    return (t, u) -> test(t, u) || Objects.requireNonNullElse(Trebuchet.defaults(other).test(t, u), false);
+  }
 
-    return (t, u) -> test(t, u) || other.test(t, u);
+  /**
+   * Throws {@link UnsupportedOperationException} .
+   *
+   * @return never
+   * @throws UnsupportedOperationException as this operation is not supported
+   */
+  @Override
+  default <V> ThrowableBiFunction<T, U, V> andThen(Function<? super Boolean, ? extends V> after) {
+    throw new UnsupportedOperationException();
   }
 }

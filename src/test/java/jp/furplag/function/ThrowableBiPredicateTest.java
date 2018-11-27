@@ -42,6 +42,12 @@ public class ThrowableBiPredicateTest {
     assertThat(ThrowableBiPredicate.orNot(1, 2, isOdd), is(true));
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void paintItGreen() {
+    ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
+    isOdd.andThen((t) -> !t);
+  }
+
   @Test
   public void testOf() {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
@@ -103,6 +109,10 @@ public class ThrowableBiPredicateTest {
     assertThat(isOddAndClanOfThree.apply(0, 1), is(false));
     assertThat(isOddAndClanOfThree.apply(3, 3), is(false));
     assertThat(isOddAndClanOfThree.apply(6, 3), is(true));
+
+    assertThat(isOdd.and(null).apply(0, 1), is(false));
+    assertThat(isOdd.and(null).apply(3, 3), is(false));
+    assertThat(isOdd.and(null).apply(6, 3), is(false));
   }
 
   @Test
@@ -124,5 +134,9 @@ public class ThrowableBiPredicateTest {
     assertThat(isOddOrClanOfThree.apply(3, 3), is(true));
     assertThat(isOddOrClanOfThree.apply(6, 3), is(true));
     assertThat(isOddOrClanOfThree.apply(6, 4), is(false));
+
+    assertThat(isOdd.or(null).apply(0, 1), is(true));
+    assertThat(isOdd.or(null).apply(3, 3), is(false));
+    assertThat(isOdd.or(null).apply(6, 3), is(true));
   }
 }

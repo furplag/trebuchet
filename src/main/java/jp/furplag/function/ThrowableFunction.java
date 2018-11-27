@@ -143,7 +143,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @return the result of {@link #apply(Object) function.apply(T)} if done it normally, or {@link Supplier#get() fallen.get()} if error occurred
    */
   static <T, R> R orElseGet(final T t, final ThrowableFunction<? super T, ? extends R> function, Supplier<? extends R> fallen) {
-    return orElse(t, function, (x) -> Objects.requireNonNullElse(fallen, () -> null).get());
+    return orElse(t, function, (x) -> Trebuchet.defaults(fallen).get());
   }
 
   /**
@@ -161,14 +161,10 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
 
   /**
    * {@inheritDoc}
-   *
-   * @throws NullPointerException if {@code after} is null
    */
   @Override
   default <V> ThrowableFunction<T, V> andThen(Function<? super R, ? extends V> after) {
-    Objects.requireNonNull(after);
-
-    return (t) -> {/* @formatter:off */try {return after.apply(applyOrThrow(t));} catch (Throwable e) {Trebuchet.sneakyThrow(e);} return null;/* @formatter:on */};
+    return (t) -> Trebuchet.defaults(after).apply(apply(t));
   }
 
   /**

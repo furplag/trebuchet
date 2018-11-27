@@ -21,7 +21,6 @@ import java.util.function.Consumer;
 
 import jp.furplag.function.Trebuchet.TriConsumer;
 
-
 /**
  * {@link TriConsumer} now get enable to throw {@link Throwable} .
  *
@@ -142,8 +141,6 @@ public interface ThrowableTriConsumer<T, U, V> extends TriConsumer<T, U, V> {
    */
   @Override
   default ThrowableTriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
-    Objects.requireNonNull(after);
-
-    return (t, u, v) -> {/* @formatter:off */try {acceptOrThrow(t, u, v); after.accept(t, u, v);} catch (Throwable e) {Trebuchet.sneakyThrow(e);}/* @formatter:on */};
+    return (t, u, v) -> {/* @formatter:off */accept(t, u, v); Trebuchet.defaults(after).accept(t, u, v);/* @formatter:on */};
   }
 }
