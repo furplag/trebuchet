@@ -25,6 +25,8 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 /**
@@ -36,7 +38,7 @@ import java.util.stream.Stream;
 public interface Trebuchet {
 
   /**
-   * represents an operation that accepts two input arguments and returns no result .
+   * represents an operation that accepts three input arguments and returns no result .
    * this is the three-arity specialization of {@link Consumer} .
    * unlike most other functional interfaces, {@code TriConsumer} is expected to operate via side-effects .
    *
@@ -116,7 +118,7 @@ public interface Trebuchet {
   }
 
   /**
-   * represents an operation upon two operands of the same type, producing a result of the same type as the operands .
+   * represents an operation upon three operands of the same type, producing a result of the same type as the operands .
    * this is a specialization of {@link TriFunction} for the case where the operands and the result are all of the same type .
    *
    * @author furplag
@@ -236,6 +238,17 @@ public interface Trebuchet {
      * @return {@code true} if the input argument matches the predicate, otherwise {@code false}
      */
     default boolean test(T t, U u, V v) {/* @formatter:off */return apply(t, u, v);/* @formatter:on */}
+
+    /**
+     * Throws {@link UnsupportedOperationException} .
+     *
+     * @return never
+     * @throws UnsupportedOperationException as this operation is not supported
+     */
+    @Override
+    default <W> TriFunction<T, U, V, W> andThen(Function<? super Boolean, ? extends W> after) {
+      throw new UnsupportedOperationException();
+    }
   }
 
   /**
@@ -246,7 +259,7 @@ public interface Trebuchet {
    * @param consumer {@link BiConsumer}
    * @return specified {@code consumer}, or the {@link BiConsumer} which do nothing if this is null
    */
-  static <T, U> BiConsumer<? super T, ? super U> defaults(final BiConsumer<T, ? super U> consumer) {
+  static <T, U> BiConsumer<? super T, ? super U> defaults(final BiConsumer<? super T, ? super U> consumer) {
     return Objects.requireNonNullElse(consumer, (t, e) -> {/* do nothing . */});
   }
 
@@ -310,6 +323,17 @@ public interface Trebuchet {
   }
 
   /**
+   * returns specified {@code supplier}, or returns the {@link Supplier} which always return null if {@code supplier} is null .
+   *
+   * @param <T> the type of results supplied by this supplier
+   * @param supplier {@link Supplier}
+   * @return specified {@code supplier}, or returns the {@link Supplier} which always return null if {@code supplier} is null
+   */
+  static <T> Supplier<? extends T> defaults(final Supplier<? extends T> supplier) {
+    return Objects.requireNonNullElse(supplier, () -> null);
+  }
+
+  /**
    * returns specified {@code consumer}, or the {@link TriConsumer} which do nothing if this is null .
    *
    * @param <T> the type of the first argument to the operation
@@ -318,7 +342,7 @@ public interface Trebuchet {
    * @param consumer {@link TriConsumer}
    * @return specified {@code consumer}, or the {@link TriConsumer} which do nothing if this is null
    */
-  static <T, U, V> TriConsumer<? super T, ? super U, ? super V> defaults(final TriConsumer<T, ? super U, ? super V> consumer) {
+  static <T, U, V> TriConsumer<? super T, ? super U, ? super V> defaults(final TriConsumer<? super T, ? super U, ? super V> consumer) {
     return Objects.requireNonNullElse(consumer, (t, u, v) -> {/* do nothing . */});
   }
 
@@ -332,7 +356,7 @@ public interface Trebuchet {
    * @param function {@link TriFunction}
    * @return specified {@code function}, or returns the {@link TriFunction} which always return null if {@code function} is null
    */
-  static <T, U, V, R> TriFunction<? super T, ? super U, ? super V, ? extends R> defaults(final TriFunction<T, ? super U, ? super V, ? extends R> function) {
+  static <T, U, V, R> TriFunction<? super T, ? super U, ? super V, ? extends R> defaults(final TriFunction<? super T, ? super U, ? super V, ? extends R> function) {
     return Objects.requireNonNullElse(function, (t, u, v) -> null);
   }
 

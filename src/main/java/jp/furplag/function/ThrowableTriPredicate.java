@@ -19,6 +19,7 @@ package jp.furplag.function;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import jp.furplag.function.Trebuchet.TriFunction;
@@ -120,4 +121,39 @@ public interface ThrowableTriPredicate<T, U, V> extends TriPredicate<T, U, V>, T
    */
   @Override
   default boolean test(T t, U u, V v) {/* @formatter:off */return apply(t, u, v);/* @formatter:on */}
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  default ThrowableTriPredicate<T, U, V> negate() {
+    return (t, u, v) -> !test(t, u, v);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  default ThrowableTriPredicate<T, U, V> and(TriPredicate<? super T, ? super U, ? super V> other) {
+    return (t, u, v) -> test(t, u, v) && Objects.requireNonNullElse(Trebuchet.defaults(other).apply(t, u, v), false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  default ThrowableTriPredicate<T, U, V> or(TriPredicate<? super T, ? super U, ? super V> other) {
+    return (t, u, v) -> test(t, u, v) || Objects.requireNonNullElse(Trebuchet.defaults(other).apply(t, u, v), false);
+  }
+
+  /**
+   * Throws {@link UnsupportedOperationException} .
+   *
+   * @return never
+   * @throws UnsupportedOperationException as this operation is not supported
+   */
+  @Override
+  default <W> ThrowableTriFunction<T, U, V, W> andThen(Function<? super Boolean, ? extends W> after) {
+    throw new UnsupportedOperationException();
+  }
 }
