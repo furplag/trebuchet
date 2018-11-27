@@ -46,7 +46,7 @@ public interface ThrowableTriConsumer<T, U, V> extends TriConsumer<T, U, V> {
    * @return {@link ThrowableTriConsumer}
    * @throws NullPointerException if {@code consumer} is null
    */
-  static <T, U, V> ThrowableTriConsumer<T, U, V> of(final TriConsumer<? super T, ? super U, ? super V> consumer, final TriConsumer<? super T, ? super U, ? super V> fallen) {
+  static <T, U, V> ThrowableTriConsumer<T, U, V> of(final ThrowableTriConsumer<? super T, ? super U, ? super V> consumer, final TriConsumer<? super T, ? super U, ? super V> fallen) {
     Objects.requireNonNull(consumer);
 
     return (t, u, v) -> {/* @formatter:off */try {consumer.accept(t, u, v);} catch (Throwable e) {Trebuchet.defaults(fallen).accept(t, u, v);}/* @formatter:off */};
@@ -65,7 +65,7 @@ public interface ThrowableTriConsumer<T, U, V> extends TriConsumer<T, U, V> {
    * @throws NullPointerException if {@code consumer} is null
    */
   @SuppressWarnings({ "unchecked" })
-  static <T, U, V, E extends Throwable> ThrowableTriConsumer<T, U, V> of(final TriConsumer<? super T, ? super U, ? super V> consumer, final Consumer<? super E> fallen) {
+  static <T, U, V, E extends Throwable> ThrowableTriConsumer<T, U, V> of(final ThrowableTriConsumer<? super T, ? super U, ? super V> consumer, final Consumer<? super E> fallen) {
     Objects.requireNonNull(consumer);
 
     return (t, u, v) -> {/* @formatter:off */try {consumer.accept(t, u, v);} catch (Throwable e) {Trebuchet.defaults(fallen).accept((E) e);}/* @formatter:off */};
@@ -83,7 +83,7 @@ public interface ThrowableTriConsumer<T, U, V> extends TriConsumer<T, U, V> {
    * @param consumer {@link TriConsumer}, may not be null
    * @param fallen {@link TriConsumer}, do nothing if this is null
    */
-  static <T, U, V> void orElse(final T t, final U u, final V v, final TriConsumer<? super T, ? super U, ? super V> consumer, final TriConsumer<? super T, ? super U, ? super V> fallen) {
+  static <T, U, V> void orElse(final T t, final U u, final V v, final ThrowableTriConsumer<? super T, ? super U, ? super V> consumer, final TriConsumer<? super T, ? super U, ? super V> fallen) {
     of(consumer, fallen).accept(t, u, v);
   }
 
@@ -100,7 +100,7 @@ public interface ThrowableTriConsumer<T, U, V> extends TriConsumer<T, U, V> {
    * @param consumer {@link TriConsumer}, may not be null
    * @param fallen {@link Consumer}, may not be null
    */
-  static <T, U, V, E extends Throwable> void orElse(final T t, final U u, final V v, final TriConsumer<? super T, ? super U, ? super V> consumer, final Consumer<? super E> fallen) {
+  static <T, U, V, E extends Throwable> void orElse(final T t, final U u, final V v, final ThrowableTriConsumer<? super T, ? super U, ? super V> consumer, final Consumer<? super E> fallen) {
     of(consumer, fallen).accept(t, u, v);
   }
 
@@ -115,7 +115,7 @@ public interface ThrowableTriConsumer<T, U, V> extends TriConsumer<T, U, V> {
    * @param v the value of the third argument to the operation
    * @param consumer {@link TriConsumer}, may not be null
    */
-  static <T, U, V> void orNot(final T t, final U u, final V v, final TriConsumer<? super T, ? super U, ? super V> consumer) {
+  static <T, U, V> void orNot(final T t, final U u, final V v, final ThrowableTriConsumer<? super T, ? super U, ? super V> consumer) {
     of(consumer, (TriConsumer<T, U, V>) null).accept(t, u, v);
   }
 
@@ -141,7 +141,7 @@ public interface ThrowableTriConsumer<T, U, V> extends TriConsumer<T, U, V> {
    * @throws NullPointerException if {@code after} is null
    */
   @Override
-  default TriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
+  default ThrowableTriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
     Objects.requireNonNull(after);
 
     return (t, u, v) -> {/* @formatter:off */try {acceptOrThrow(t, u, v); after.accept(t, u, v);} catch (Throwable e) {Trebuchet.sneakyThrow(e);}/* @formatter:on */};

@@ -282,7 +282,7 @@ public interface Trebuchet {
    * @param consumer {@link Consumer}
    * @return specified {@code consumer}, or the {@link Consumer} which do nothing if this is null
    */
-  static <T> Consumer<? super T> defaults(final Consumer<T> consumer) {
+  static <T> Consumer<? super T> defaults(final Consumer<? super T> consumer) {
     return Objects.requireNonNullElse(consumer, (t) -> {/* do nothing . */});
   }
 

@@ -42,7 +42,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    * @throws NullPointerException if {@code consumer} is null
    */
   @SuppressWarnings({ "unchecked" })
-  static <T, E extends Throwable> ThrowableConsumer<T> of(final Consumer<? super T> consumer, final BiConsumer<? super T, ? super E> fallen) {
+  static <T, E extends Throwable> ThrowableConsumer<T> of(final ThrowableConsumer<? super T> consumer, final BiConsumer<? super T, ? super E> fallen) {
     Objects.requireNonNull(consumer);
 
     return (t) -> {/* @formatter:off */try {consumer.accept(t);} catch (Throwable e) {Trebuchet.defaults(fallen).accept(t, (E) e);}/* @formatter:off */};
@@ -56,7 +56,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    * @param fallen {@link Consumer}, do nothing if this is null
    * @return {@link ThrowableConsumer}
    */
-  static <T> ThrowableConsumer<T> of(final Consumer<? super T> consumer, final Consumer<? super T> fallen) {
+  static <T> ThrowableConsumer<T> of(final ThrowableConsumer<? super T> consumer, final Consumer<? super T> fallen) {
     return of(consumer, (t, e) -> Objects.requireNonNullElse(fallen, (x) -> {/* do nothing . */}).accept(t));
   }
 
@@ -69,7 +69,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    * @param consumer {@link Consumer}, may not be null
    * @param fallen {@link BiConsumer}, do nothing if this is null
    */
-  static <T, E extends Throwable> void orElse(final T t, final Consumer<? super T> consumer, final BiConsumer<? super T, ? super E> fallen) {
+  static <T, E extends Throwable> void orElse(final T t, final ThrowableConsumer<? super T> consumer, final BiConsumer<? super T, ? super E> fallen) {
     of(consumer, fallen).accept(t);
   }
 
@@ -81,7 +81,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    * @param consumer {@link Consumer}, may not be null
    * @param fallen {@link Consumer}, do nothing if this is null
    */
-  static <T> void orElse(final T t, final Consumer<? super T> consumer, final Consumer<? super T> fallen) {
+  static <T> void orElse(final T t, final ThrowableConsumer<? super T> consumer, final Consumer<? super T> fallen) {
     orElse(t, consumer, (x, ex) -> Trebuchet.defaults(fallen).accept(x));
   }
 
@@ -92,7 +92,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    * @param t the value of the input to the operation
    * @param consumer {@link Consumer}, may not be null
    */
-  static <T> void orNot(final T t, final Consumer<? super T> consumer) {
+  static <T> void orNot(final T t, final ThrowableConsumer<? super T> consumer) {
     orElse(t, consumer, (Consumer<T>) null);
   }
 
@@ -116,7 +116,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    * @throws NullPointerException if {@code after} is null
    */
   @Override
-  default Consumer<T> andThen(Consumer<? super T> after) {
+  default ThrowableConsumer<T> andThen(Consumer<? super T> after) {
     Objects.requireNonNull(after);
 
     return (t) -> {/* @formatter:off */try {acceptOrThrow(t); after.accept(t);} catch (Throwable e) {Trebuchet.sneakyThrow(e);}/* @formatter:on */};

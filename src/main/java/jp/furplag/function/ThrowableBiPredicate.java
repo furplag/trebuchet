@@ -43,7 +43,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * @param fallen {@link BiPredicate}, or the function that always return {@code false} if this is null
    * @return {@link ThrowableBiPredicate}
    */
-  static <T, U> ThrowableBiPredicate<T, U> of(final BiPredicate<? super T, ? super U> predicate, final BiPredicate<? super T, ? super U> fallen) {
+  static <T, U> ThrowableBiPredicate<T, U> of(final ThrowableBiPredicate<? super T, ? super U> predicate, final BiPredicate<? super T, ? super U> fallen) {
     return of(predicate, (t, u, e) -> Trebuchet.defaults(fallen).test(t, u));
   }
 
@@ -58,7 +58,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * @return {@link ThrowableBiPredicate}
    */
   @SuppressWarnings({ "unchecked" })
-  static <T, U, E extends Throwable> ThrowableBiPredicate<T, U> of(final BiPredicate<? super T, ? super U> predicate, final Predicate<? super E> fallen) {
+  static <T, U, E extends Throwable> ThrowableBiPredicate<T, U> of(final ThrowableBiPredicate<? super T, ? super U> predicate, final Predicate<? super E> fallen) {
     return of(predicate, (t, u, e) -> Trebuchet.defaults(fallen).test((E) e));
   }
 
@@ -72,7 +72,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * @param fallen {@link TriPredicate}, or the function that always return {@code false} if this is null
    * @return {@link ThrowableBiPredicate}
    */
-  static <T, U, E extends Throwable> ThrowableBiPredicate<T, U> of(final BiPredicate<? super T, ? super U> predicate, final TriPredicate<? super T, ? super U, ? super E> fallen) {
+  static <T, U, E extends Throwable> ThrowableBiPredicate<T, U> of(final ThrowableBiPredicate<? super T, ? super U> predicate, final TriPredicate<? super T, ? super U, ? super E> fallen) {
     return (t, u) -> ThrowableBiFunction.of(predicate::test, Objects.requireNonNullElse(fallen, (x, y, ex) -> false)).apply(t, u);
   }
 
@@ -87,7 +87,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * @param fallen the return value when error has occurred
    * @return the result of {@link #test(Object, Object) predicate.test(T, U)} if done it normally, or fallen if error occurred
    */
-  static <T, U> boolean orDefault(final T t, final U u, final BiPredicate<? super T, ? super U> predicate, final boolean fallen) {
+  static <T, U> boolean orDefault(final T t, final U u, final ThrowableBiPredicate<? super T, ? super U> predicate, final boolean fallen) {
     return orElseGet(t, u, predicate, () -> fallen);
   }
 
@@ -102,7 +102,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * @param fallen {@link BiPredicate}, or the function that always return {@code false} if this is null
    * @return the result of {@link #test(Object, Object) predicate.test(T, U)} if done it normally, or {@link BiPredicate#test(Object, Object) fallen.test(T, U)} if error occurred
    */
-  static <T, U> boolean orElse(final T t, final U u, final BiPredicate<? super T, ? super U> predicate, final BiPredicate<? super T, ? super U> fallen) {
+  static <T, U> boolean orElse(final T t, final U u, final ThrowableBiPredicate<? super T, ? super U> predicate, final BiPredicate<? super T, ? super U> fallen) {
     return of(predicate, fallen).test(t, u);
   }
 
@@ -117,7 +117,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * @param fallen {@link Predicate}, or the function that always return {@code false} if this is null
    * @return the result of {@link #test(Object, Object) predicate.test(T, U)} if done it normally, or {@link Predicate#test(Object) fallen.test(E)} if error occurred
    */
-  static <T, U, E extends Throwable> boolean orElse(final T t, final U u, final BiPredicate<? super T, ? super U> predicate, final Predicate<? super E> fallen) {
+  static <T, U, E extends Throwable> boolean orElse(final T t, final U u, final ThrowableBiPredicate<? super T, ? super U> predicate, final Predicate<? super E> fallen) {
     return of(predicate, fallen).test(t, u);
   }
 
@@ -132,7 +132,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * @param fallen {@link TriPredicate}, or the function that always return {@code false} if this is null
    * @return the result of {@link #test(Object, Object) predicate.test(T, U)} if done it normally, or {@link TriPredicate#test(Object, Object, Object) fallen.test(T, U, E)} if error occurred
    */
-  static <T, U, E extends Throwable> boolean orElse(final T t, final U u, final BiPredicate<? super T, ? super U> predicate, final TriPredicate<? super T, ? super U, ? super E> fallen) {
+  static <T, U, E extends Throwable> boolean orElse(final T t, final U u, final ThrowableBiPredicate<? super T, ? super U> predicate, final TriPredicate<? super T, ? super U, ? super E> fallen) {
     return of(predicate, fallen).test(t, u);
   }
 
@@ -147,7 +147,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * @param fallen {@link BooleanSupplier}, or the function that always return {@code false} if this is null
    * @return the result of {@link #test(Object, Object) predicate.test(T, U)} if done it normally, or {@link BooleanSupplier#getAsBoolean() fallen.getAsBoolean()} if error occurred
    */
-  static <T, U> boolean orElseGet(final T t, final U u, final BiPredicate<? super T, ? super U> predicate, final BooleanSupplier fallen) {
+  static <T, U> boolean orElseGet(final T t, final U u, final ThrowableBiPredicate<? super T, ? super U> predicate, final BooleanSupplier fallen) {
     return ThrowableBiFunction.orElseGet(t, u, predicate::test, Objects.requireNonNullElse(fallen, () -> false)::getAsBoolean);
   }
 
@@ -161,7 +161,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * @param predicate {@link BiPredicate}, may not be null
    * @return the result of {@link #test(Object, Object) predicate.test(T, U)} if done it normally, or {@code false} if error occurred
    */
-  static <T, U> boolean orNot(final T t, final U u, final BiPredicate<? super T, ? super U> predicate) {
+  static <T, U> boolean orNot(final T t, final U u, final ThrowableBiPredicate<? super T, ? super U> predicate) {
     return orElseGet(t, u, predicate, () -> false);
   }
 
@@ -170,4 +170,32 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    */
   @Override
   default boolean test(T t, U u) {/* @formatter:off */return apply(t, u);/* @formatter:on */}
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  default ThrowableBiPredicate<T, U> negate() {
+    return (t, u) -> !test(t, u);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  default ThrowableBiPredicate<T, U> and(BiPredicate<? super T, ? super U> other) {
+    Objects.requireNonNull(other);
+
+    return (t, u) -> test(t, u) && other.test(t, u);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  default ThrowableBiPredicate<T, U> or(BiPredicate<? super T, ? super U> other) {
+    Objects.requireNonNull(other);
+
+    return (t, u) -> test(t, u) || other.test(t, u);
+  }
 }

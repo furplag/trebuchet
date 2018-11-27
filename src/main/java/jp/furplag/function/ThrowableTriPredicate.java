@@ -49,7 +49,7 @@ public interface ThrowableTriPredicate<T, U, V> extends TriPredicate<T, U, V>, T
    * @param fallen {@link Predicate}, or the predicate that always return {@code null} if this is null
    * @return {@link ThrowableTriPredicate}
    */
-  static <T, U, V, E extends Throwable> ThrowableTriPredicate<T, U, V> of(final TriPredicate<? super T, ? super U, ? super V> predicate, final Predicate<? super E> fallen) {
+  static <T, U, V, E extends Throwable> ThrowableTriPredicate<T, U, V> of(final ThrowableTriPredicate<? super T, ? super U, ? super V> predicate, final Predicate<? super E> fallen) {
     return (t, u, v) -> ThrowableTriFunction.of(predicate, Trebuchet.defaults(fallen)::test).apply(t, u, v);
   }
 
@@ -63,7 +63,7 @@ public interface ThrowableTriPredicate<T, U, V> extends TriPredicate<T, U, V>, T
    * @param fallen {@link TriPredicate}, or the predicate that always return {@code null} if this is null
    * @return {@link ThrowableTriPredicate}
    */
-  static <T, U, V> ThrowableTriPredicate<T, U, V> of(final TriPredicate<? super T, ? super U, ? super V> predicate, final TriPredicate<? super T, ? super U, ? super V> fallen) {
+  static <T, U, V> ThrowableTriPredicate<T, U, V> of(final ThrowableTriPredicate<? super T, ? super U, ? super V> predicate, final TriPredicate<? super T, ? super U, ? super V> fallen) {
     return (t, u, v) -> ThrowableTriFunction.of(predicate, Objects.requireNonNullElse(fallen, (x, y, z) -> false)).apply(t, u, v);
   }
 
@@ -80,7 +80,7 @@ public interface ThrowableTriPredicate<T, U, V> extends TriPredicate<T, U, V>, T
    * @param fallen the return value when error has occurred
    * @return the result of {@link #test(Object, Object, Object) predicate.test(T, U, V)} if done it normally, or fallen if error occurred
    */
-  static <T, U, V> boolean orDefault(final T t, final U u, final V v, final TriPredicate<? super T, ? super U, ? super V> predicate, final boolean fallen) {
+  static <T, U, V> boolean orDefault(final T t, final U u, final V v, final ThrowableTriPredicate<? super T, ? super U, ? super V> predicate, final boolean fallen) {
     return orElseGet(t, u, v, predicate, () -> fallen);
   }
 
@@ -97,7 +97,7 @@ public interface ThrowableTriPredicate<T, U, V> extends TriPredicate<T, U, V>, T
    * @param fallen {@link BooleanSupplier}, or the function that always return {@code false} if this is null
    * @return the result of {@link #test(Object, Object, Object) predicate.test(T, U, V)} if done it normally, or {@link BooleanSupplier#getAsBoolean() fallen.getAsBoolean()} if error occurred
    */
-  static <T, U, V> boolean orElseGet(final T t, final U u, final V v, final TriPredicate<? super T, ? super U, ? super V> predicate, final BooleanSupplier fallen) {
+  static <T, U, V> boolean orElseGet(final T t, final U u, final V v, final ThrowableTriPredicate<? super T, ? super U, ? super V> predicate, final BooleanSupplier fallen) {
     return ThrowableTriFunction.orElseGet(t, u, v, predicate::test, Objects.requireNonNullElse(fallen, () -> false)::getAsBoolean);
   }
 
@@ -111,7 +111,7 @@ public interface ThrowableTriPredicate<T, U, V> extends TriPredicate<T, U, V>, T
    * @param predicate {@link BiPredicate}, may not be null
    * @return the result of {@link #test(Object, Object, Object) predicate.test(T, U, V)} if done it normally, or {@code false} if error occurred
    */
-  static <T, U, V> boolean orNot(final T t, final U u, final V v, final TriPredicate<? super T, ? super U, ? super V> predicate) {
+  static <T, U, V> boolean orNot(final T t, final U u, final V v, final ThrowableTriPredicate<? super T, ? super U, ? super V> predicate) {
     return orElseGet(t, u, v, predicate, () -> false);
   }
 

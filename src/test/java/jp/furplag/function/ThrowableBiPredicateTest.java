@@ -95,4 +95,34 @@ public class ThrowableBiPredicateTest {
     assertThat(ThrowableBiPredicate.orNot(1, 2, isOdd), is(true));
   }
 
+  @Test
+  public void testAnd() {
+    ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
+    ThrowableBiPredicate<Integer, Integer> clanOfThree = (t, u) -> (t + u) % 3 == 0;
+    ThrowableBiPredicate<Integer, Integer> isOddAndClanOfThree = isOdd.and(clanOfThree);
+    assertThat(isOddAndClanOfThree.apply(0, 1), is(false));
+    assertThat(isOddAndClanOfThree.apply(3, 3), is(false));
+    assertThat(isOddAndClanOfThree.apply(6, 3), is(true));
+  }
+
+  @Test
+  public void testNegate() {
+    ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
+    ThrowableBiPredicate<Integer, Integer> isEven = isOdd.negate();
+    assertThat(isEven.apply(0, 1), is(false));
+    assertThat(isEven.apply(3, 3), is(true));
+    assertThat(isEven.apply(6, 3), is(false));
+    assertThat(isEven.apply(6, 4), is(true));
+  }
+
+  @Test
+  public void testOr() {
+    ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
+    ThrowableBiPredicate<Integer, Integer> clanOfThree = (t, u) -> (t + u) % 3 == 0;
+    ThrowableBiPredicate<Integer, Integer> isOddOrClanOfThree = isOdd.or(clanOfThree);
+    assertThat(isOddOrClanOfThree.apply(0, 1), is(true));
+    assertThat(isOddOrClanOfThree.apply(3, 3), is(true));
+    assertThat(isOddOrClanOfThree.apply(6, 3), is(true));
+    assertThat(isOddOrClanOfThree.apply(6, 4), is(false));
+  }
 }

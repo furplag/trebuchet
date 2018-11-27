@@ -50,7 +50,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @param fallen the return value when the function returns null, may not be null
    * @return the result of {@link #apply(Object, Object, Object) function.apply(T, U, V)} if done it normally, or fallen if error occurred
    */
-  static <T, U, V, R, W extends R> R applyOrDefault(final T t, final U u, final V v, final TriFunction<? super T, ? super U, ? super V, ? extends R> function, final W fallen) {
+  static <T, U, V, R, W extends R> R applyOrDefault(final T t, final U u, final V v, final ThrowableTriFunction<? super T, ? super U, ? super V, ? extends R> function, final W fallen) {
     return Objects.requireNonNullElse(orElse(t, u, v, function, (ex) -> null), Objects.requireNonNull(fallen));
   }
 
@@ -67,7 +67,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @throws NullPointerException if {@code function} is null
    */
   @SuppressWarnings({ "unchecked" })
-  static <T, U, V, R, E extends Throwable> ThrowableTriFunction<T, U, V, R> of(final TriFunction<? super T, ? super U, ? super V, ? extends R> function, final Function<? super E, ? extends R> fallen) {
+  static <T, U, V, R, E extends Throwable> ThrowableTriFunction<T, U, V, R> of(final ThrowableTriFunction<? super T, ? super U, ? super V, ? extends R> function, final Function<? super E, ? extends R> fallen) {
     Objects.requireNonNull(function);
 
     return (t, u, v) -> {/* @formatter:off */try {return function.apply(t, u, v);} catch (Throwable e) {return Trebuchet.defaults(fallen).apply((E) e);}/* @formatter:off */};
@@ -85,7 +85,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @return {@link ThrowableTriFunction}
    * @throws NullPointerException if {@code function} is null
    */
-  static <T, U, V, R> ThrowableTriFunction<T, U, V, R> of(final TriFunction<? super T, ? super U, ? super V, ? extends R> function, final TriFunction<? super T, ? super U, ? super V, ? extends R> fallen) {
+  static <T, U, V, R> ThrowableTriFunction<T, U, V, R> of(final ThrowableTriFunction<? super T, ? super U, ? super V, ? extends R> function, final TriFunction<? super T, ? super U, ? super V, ? extends R> fallen) {
     Objects.requireNonNull(function);
 
     return (t, u, v) -> {/* @formatter:off */try {return function.apply(t, u, v);} catch (Throwable e) {return Trebuchet.defaults(fallen).apply(t, u, v);}/* @formatter:off */};
@@ -105,7 +105,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @param fallen the return value when error has occurred
    * @return the result of {@link #apply(Object, Object, Object) function.apply(T, U, V)} if done it normally, or fallen if error occurred
    */
-  static <T, U, V, R, W extends R> R orDefault(final T t, final U u, final V v, final TriFunction<? super T, ? super U, ? super V, R> function, final W fallen) {
+  static <T, U, V, R, W extends R> R orDefault(final T t, final U u, final V v, final ThrowableTriFunction<? super T, ? super U, ? super V, ? extends R> function, final W fallen) {
     return orElseGet(t, u, v, function, () -> fallen);
   }
 
@@ -124,7 +124,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @param fallen {@link Function}, or the function that always return {@code null} if this is null
    * @return the result of {@link #apply(Object, Object, Object) function.apply(T, U, V)} if done it normally, or {@link Function#apply(Object) fallen.apply(E)} if error occurred
    */
-  static <T, U, V, R, E extends Throwable> R orElse(final T t, final U u, final V v, final TriFunction<? super T, ? super U, ? super V, ? extends R> function, final Function<? super E, ? extends R> fallen) {
+  static <T, U, V, R, E extends Throwable> R orElse(final T t, final U u, final V v, final ThrowableTriFunction<? super T, ? super U, ? super V, ? extends R> function, final Function<? super E, ? extends R> fallen) {
     return of(function, fallen).apply(t, u, v);
   }
 
@@ -142,7 +142,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @param fallen {@link TriFunction}, or the function that always return {@code null} if this is null
    * @return the result of {@link #apply(Object, Object, Object) function.apply(T, U, V)} if done it normally, or {@link TriFunction#apply(Object, Object, Object) fallen.apply(T, U, V)} if error occurred
    */
-  static <T, U, V, R> R orElse(final T t, final U u, final V v, final TriFunction<? super T, ? super U, ? super V, ? extends R> function, final TriFunction<? super T, ? super U, ? super V, ? extends R> fallen) {
+  static <T, U, V, R> R orElse(final T t, final U u, final V v, final ThrowableTriFunction<? super T, ? super U, ? super V, ? extends R> function, final TriFunction<? super T, ? super U, ? super V, ? extends R> fallen) {
     return of(function, fallen).apply(t, u, v);
   }
 
@@ -160,7 +160,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @param fallen {@link Supplier}, or the function that always return {@code null} if this is null
    * @return the result of {@link #apply(Object, Object, Object) function.apply(T, U, V)} if done it normally, or {@link Supplier#get() fallen.get()} if error occurred
    */
-  static <T, U, V, R> R orElseGet(final T t, final U u, final V v, final TriFunction<? super T, ? super U, ? super V, ? extends R> function, final Supplier<? extends R> fallen) {
+  static <T, U, V, R> R orElseGet(final T t, final U u, final V v, final ThrowableTriFunction<? super T, ? super U, ? super V, ? extends R> function, final Supplier<? extends R> fallen) {
     return of(function, (ex) -> Objects.requireNonNullElse(fallen, () -> null).get()).apply(t, u, v);
   }
 
@@ -177,7 +177,7 @@ public interface ThrowableTriFunction<T, U, V, R>  extends TriFunction<T, U, V, 
    * @param function {@link TriFunction}, may not be null
    * @return the result of {@link #apply(Object, Object, Object) function.apply(T, U, V)} if done it normally, or {@code null} if error occurred
    */
-  static <T, U, V, R> R orNull(final T t, final U u, final V v, final TriFunction<? super T, ? super U, ? super V, ? extends R> function) {
+  static <T, U, V, R> R orNull(final T t, final U u, final V v, final ThrowableTriFunction<? super T, ? super U, ? super V, ? extends R> function) {
     return orElseGet(t, u, v, function, () -> null);
   }
 
