@@ -116,7 +116,7 @@ public interface ThrowableConsumer<T> extends Consumer<T> {
    * @throws NullPointerException if {@code after} is null
    */
   @Override
-  default Consumer<T> andThen(Consumer<? super T> after) {
+  default ThrowableConsumer<T> andThen(Consumer<? super T> after) {
     Objects.requireNonNull(after);
 
     return (t) -> {/* @formatter:off */try {acceptOrThrow(t); after.accept(t);} catch (Throwable e) {Trebuchet.sneakyThrow(e);}/* @formatter:on */};

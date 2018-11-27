@@ -210,7 +210,7 @@ public interface ThrowableBiFunction<T, U, R> extends BiFunction<T, U, R> {
   default <V> ThrowableBiFunction<T, U, V> andThen(Function<? super R, ? extends V> after) {
     Objects.requireNonNull(after);
 
-    return (t, u) -> {/* @formatter:off */try {return after.apply(applyOrThrow(t, u));} catch (Throwable e) {Trebuchet.sneakyThrow(e);} return null;/* @formatter:on */};
+    return (t, u) -> {/* @formatter:off */try {return after.apply(apply(t, u));} catch (Throwable e) {Trebuchet.sneakyThrow(e);} return null;/* @formatter:on */};
   }
 
   /**

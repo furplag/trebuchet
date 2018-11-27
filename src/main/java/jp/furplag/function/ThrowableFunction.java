@@ -165,7 +165,7 @@ public interface ThrowableFunction<T, R> extends Function<T, R> {
    * @throws NullPointerException if {@code after} is null
    */
   @Override
-  default <V> Function<T, V> andThen(Function<? super R, ? extends V> after) {
+  default <V> ThrowableFunction<T, V> andThen(Function<? super R, ? extends V> after) {
     Objects.requireNonNull(after);
 
     return (t) -> {/* @formatter:off */try {return after.apply(applyOrThrow(t));} catch (Throwable e) {Trebuchet.sneakyThrow(e);} return null;/* @formatter:on */};

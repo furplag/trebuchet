@@ -186,7 +186,7 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
   default ThrowableBiPredicate<T, U> and(BiPredicate<? super T, ? super U> other) {
     Objects.requireNonNull(other);
 
-    return (T t, U u) -> test(t, u) && other.test(t, u);
+    return (t, u) -> test(t, u) && other.test(t, u);
   }
 
   /**
@@ -196,6 +196,6 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
   default ThrowableBiPredicate<T, U> or(BiPredicate<? super T, ? super U> other) {
     Objects.requireNonNull(other);
 
-    return (T t, U u) -> test(t, u) || other.test(t, u);
+    return (t, u) -> test(t, u) || other.test(t, u);
   }
 }
