@@ -120,7 +120,20 @@ public interface ThrowableTriPredicate<T, U, V> extends TriPredicate<T, U, V>, T
    * {@inheritDoc}
    */
   @Override
-  default boolean test(T t, U u, V v) {/* @formatter:off */return apply(t, u, v);/* @formatter:on */}
+  default ThrowableTriPredicate<T, U, V> and(TriPredicate<? super T, ? super U, ? super V> other) {
+    return (t, u, v) -> test(t, u, v) && Objects.requireNonNullElse(Trebuchet.defaults(other).apply(t, u, v), false);
+  }
+
+  /**
+   * Throws {@link UnsupportedOperationException} .
+   *
+   * @return never
+   * @throws UnsupportedOperationException as this operation is not supported
+   */
+  @Override
+  default <W> ThrowableTriFunction<T, U, V, W> andThen(Function<? super Boolean, ? extends W> after) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * {@inheritDoc}
@@ -134,26 +147,13 @@ public interface ThrowableTriPredicate<T, U, V> extends TriPredicate<T, U, V>, T
    * {@inheritDoc}
    */
   @Override
-  default ThrowableTriPredicate<T, U, V> and(TriPredicate<? super T, ? super U, ? super V> other) {
-    return (t, u, v) -> test(t, u, v) && Objects.requireNonNullElse(Trebuchet.defaults(other).apply(t, u, v), false);
+  default ThrowableTriPredicate<T, U, V> or(TriPredicate<? super T, ? super U, ? super V> other) {
+    return (t, u, v) -> test(t, u, v) || Objects.requireNonNullElse(Trebuchet.defaults(other).apply(t, u, v), false);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  default ThrowableTriPredicate<T, U, V> or(TriPredicate<? super T, ? super U, ? super V> other) {
-    return (t, u, v) -> test(t, u, v) || Objects.requireNonNullElse(Trebuchet.defaults(other).apply(t, u, v), false);
-  }
-
-  /**
-   * Throws {@link UnsupportedOperationException} .
-   *
-   * @return never
-   * @throws UnsupportedOperationException as this operation is not supported
-   */
-  @Override
-  default <W> ThrowableTriFunction<T, U, V, W> andThen(Function<? super Boolean, ? extends W> after) {
-    throw new UnsupportedOperationException();
-  }
+  default boolean test(T t, U u, V v) {/* @formatter:off */return apply(t, u, v);/* @formatter:on */}
 }

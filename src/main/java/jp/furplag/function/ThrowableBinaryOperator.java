@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.furplag.function;
 
 import java.util.Comparator;
@@ -31,18 +32,6 @@ import java.util.function.BinaryOperator;
 public interface ThrowableBinaryOperator<T> extends ThrowableBiFunction<T, T, T>, BinaryOperator<T> {
 
   /**
-   * returns a {@link BinaryOperator} which returns the lesser of two elements according to the specified {@code Comparator} .
-   *
-   * @param <T> the type of the input arguments of the comparator
-   * @param comparator a {@code Comparator} for comparing the two values
-   * @return a {@code BinaryOperator} which returns the lesser of its operands, according to the supplied {@code Comparator}
-   * @throws NullPointerException if the argument is null
-   */
-  static <T> ThrowableBinaryOperator<T> minBy(Comparator<? super T> comparator) {
-    return (a, b) -> comparator.compare(a, b) <= 0 ? a : b;
-  }
-
-  /**
    * returns a {@link BinaryOperator} which returns the greater of two elements according to the specified {@code Comparator} .
    *
    * @param <T> the type of the input arguments of the comparator
@@ -52,5 +41,17 @@ public interface ThrowableBinaryOperator<T> extends ThrowableBiFunction<T, T, T>
    */
   static <T> ThrowableBinaryOperator<T> maxBy(Comparator<? super T> comparator) {
     return (a, b) -> comparator.compare(a, b) >= 0 ? a : b;
+  }
+
+  /**
+   * returns a {@link BinaryOperator} which returns the lesser of two elements according to the specified {@code Comparator} .
+   *
+   * @param <T> the type of the input arguments of the comparator
+   * @param comparator a {@code Comparator} for comparing the two values
+   * @return a {@code BinaryOperator} which returns the lesser of its operands, according to the supplied {@code Comparator}
+   * @throws NullPointerException if the argument is null
+   */
+  static <T> ThrowableBinaryOperator<T> minBy(Comparator<? super T> comparator) {
+    return (a, b) -> comparator.compare(a, b) <= 0 ? a : b;
   }
 }

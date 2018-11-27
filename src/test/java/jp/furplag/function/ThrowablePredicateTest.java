@@ -28,6 +28,22 @@ import org.junit.Test;
 public class ThrowablePredicateTest {
 
   @Test
+  public void orDefault() {
+    assertThat(ThrowablePredicate.orDefault((Integer) null, (t) -> t % 2 != 0, false), is(false));
+    assertThat(ThrowablePredicate.orDefault((Integer) null, (t) -> t % 2 != 0, true), is(true));
+    assertThat(ThrowablePredicate.orDefault(2, (t) -> t % 2 != 0, false), is(false));
+    assertThat(ThrowablePredicate.orDefault(3, (t) -> t % 2 != 0, false), is(true));
+    assertThat(ThrowablePredicate.orDefault(2, (t) -> t % 2 != 0, true), is(false));
+    assertThat(ThrowablePredicate.orDefault(3, (t) -> t % 2 != 0, true), is(true));
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void paintItGreen() {
+    ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
+    isOdd.andThen((t) -> !t);
+  }
+
+  @Test
   public void test() {
     ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
     try {
@@ -41,10 +57,27 @@ public class ThrowablePredicateTest {
     assertThat(ThrowablePredicate.orNot(3, isOdd), is(true));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void paintItGreen() {
+  @Test
+  public void testAnd() {
     ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
-    isOdd.andThen((t) -> !t);
+    ThrowablePredicate<Integer> clanOfThree = (t) -> (t) % 3 == 0;
+    ThrowablePredicate<Integer> isOddAndClanOfThree = isOdd.and(clanOfThree);
+    assertThat(isOddAndClanOfThree.apply(1), is(false));
+    assertThat(isOddAndClanOfThree.apply(2), is(false));
+    assertThat(isOddAndClanOfThree.apply(3), is(true));
+
+    assertThat(isOdd.and(null).apply(1), is(false));
+    assertThat(isOdd.and(null).apply(2), is(false));
+    assertThat(isOdd.and(null).apply(3), is(false));
+  }
+
+  @Test
+  public void testNegate() {
+    ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
+    ThrowablePredicate<Integer> isEven = isOdd.negate();
+    assertThat(isEven.apply(1), is(false));
+    assertThat(isEven.apply(2), is(true));
+    assertThat(isEven.apply(3), is(false));
   }
 
   @Test
@@ -58,13 +91,17 @@ public class ThrowablePredicateTest {
   }
 
   @Test
-  public void orDefault() {
-    assertThat(ThrowablePredicate.orDefault((Integer) null, (t) -> t % 2 != 0, false), is(false));
-    assertThat(ThrowablePredicate.orDefault((Integer) null, (t) -> t % 2 != 0, true), is(true));
-    assertThat(ThrowablePredicate.orDefault(2, (t) -> t % 2 != 0, false), is(false));
-    assertThat(ThrowablePredicate.orDefault(3, (t) -> t % 2 != 0, false), is(true));
-    assertThat(ThrowablePredicate.orDefault(2, (t) -> t % 2 != 0, true), is(false));
-    assertThat(ThrowablePredicate.orDefault(3, (t) -> t % 2 != 0, true), is(true));
+  public void testOr() {
+    ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
+    ThrowablePredicate<Integer> clanOfThree = (t) -> (t) % 3 == 0;
+    ThrowablePredicate<Integer> isOddOrClanOfThree = isOdd.or(clanOfThree);
+    assertThat(isOddOrClanOfThree.apply(1), is(true));
+    assertThat(isOddOrClanOfThree.apply(2), is(false));
+    assertThat(isOddOrClanOfThree.apply(3), is(true));
+
+    assertThat(isOdd.or(null).apply(1), is(true));
+    assertThat(isOdd.or(null).apply(2), is(false));
+    assertThat(isOdd.or(null).apply(3), is(true));
   }
 
   @Test
@@ -93,42 +130,5 @@ public class ThrowablePredicateTest {
     assertThat(ThrowablePredicate.orNot((Integer) null, (t) -> t % 2 != 0), is(false));
     assertThat(ThrowablePredicate.orNot(2, (t) -> t % 2 != 0), is(false));
     assertThat(ThrowablePredicate.orNot(3, (t) -> t % 2 != 0), is(true));
-  }
-
-  @Test
-  public void testAnd() {
-    ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
-    ThrowablePredicate<Integer> clanOfThree = (t) -> (t) % 3 == 0;
-    ThrowablePredicate<Integer> isOddAndClanOfThree = isOdd.and(clanOfThree);
-    assertThat(isOddAndClanOfThree.apply(1), is(false));
-    assertThat(isOddAndClanOfThree.apply(2), is(false));
-    assertThat(isOddAndClanOfThree.apply(3), is(true));
-
-    assertThat(isOdd.and(null).apply(1), is(false));
-    assertThat(isOdd.and(null).apply(2), is(false));
-    assertThat(isOdd.and(null).apply(3), is(false));
-  }
-
-  @Test
-  public void testNegate() {
-    ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
-    ThrowablePredicate<Integer> isEven = isOdd.negate();
-    assertThat(isEven.apply(1), is(false));
-    assertThat(isEven.apply(2), is(true));
-    assertThat(isEven.apply(3), is(false));
-  }
-
-  @Test
-  public void testOr() {
-    ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
-    ThrowablePredicate<Integer> clanOfThree = (t) -> (t) % 3 == 0;
-    ThrowablePredicate<Integer> isOddOrClanOfThree = isOdd.or(clanOfThree);
-    assertThat(isOddOrClanOfThree.apply(1), is(true));
-    assertThat(isOddOrClanOfThree.apply(2), is(false));
-    assertThat(isOddOrClanOfThree.apply(3), is(true));
-
-    assertThat(isOdd.or(null).apply(1), is(true));
-    assertThat(isOdd.or(null).apply(2), is(false));
-    assertThat(isOdd.or(null).apply(3), is(true));
   }
 }

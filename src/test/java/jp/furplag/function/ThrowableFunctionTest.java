@@ -73,6 +73,21 @@ public class ThrowableFunctionTest implements FunctionTest {
   }
 
   @Test
+  @Override
+  public void testApplyOrElse() {
+    try {
+      ThrowableFunction.applyOrDefault((String) null, (String t) -> t.codePoints().findFirst().orElse(-1), (Integer) null);
+      fail("no one execute this line .");
+    } catch (Exception ex) {
+      assertThat(ex instanceof NullPointerException, is(true));
+    }
+    assertThat(ThrowableFunction.applyOrDefault("仏", (t) -> t.codePoints().findFirst().orElse(-1), -99), is("仏".codePointAt(0)));
+    assertThat(ThrowableFunction.applyOrDefault((String) null, (String t) -> t.codePoints().findFirst().orElse(-1), -99), is(-99));
+    assertThat(ThrowableFunction.applyOrDefault("", (t) -> t.codePoints().findFirst().orElse(-1), -99), is(-1));
+    assertThat(ThrowableFunction.applyOrDefault("南無阿弥陀仏", (t) -> new HashMap<String, Integer>().get(t), -99), is(-99));
+  }
+
+  @Test
   public void testIdentity() {
     IntStream.rangeClosed(0, 9999).forEach((i) -> {
       assertThat(Function.identity().apply(i), is(i));
@@ -91,6 +106,20 @@ public class ThrowableFunctionTest implements FunctionTest {
     assertArrayEquals("南無阿弥陀仏".split(""), ThrowableFunction.of((String t) -> t.split(""), (t) -> "諸行無常".split("")).apply("南無阿弥陀仏"));
     assertArrayEquals("NullPointerException".split(""), ThrowableFunction.of((String t) -> t.split(""), (t, e) -> e.getClass().getSimpleName().split("")).apply(null));
     assertArrayEquals("南無阿弥陀仏".split(""), ThrowableFunction.of((String t) -> t.split(""), (t, e) -> e.getClass().getSimpleName().split("")).apply("南無阿弥陀仏"));
+  }
+
+  @Test
+  @Override
+  public void testOrDefault() {
+    assertThat(
+      ThrowableFunction.orDefault(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), 0)
+    , is(ThrowableFunction.orElseGet(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), () -> 0))
+    );
+    assertThat(
+      ThrowableFunction.orDefault(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), null)
+    , is((Integer) ThrowableFunction.orElseGet(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), () -> null))
+    );
+    assertArrayEquals(new Integer[] {3, 1, 1, 1, 1, 3}, Arrays.stream(anArray).map((t) -> ThrowableFunction.orDefault(t, (x) -> x / x, 3)).toArray(Integer[]::new));
   }
 
   @Test
@@ -116,35 +145,6 @@ public class ThrowableFunctionTest implements FunctionTest {
       ThrowableFunction.orElseGet(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), null)
     , is((Integer) ThrowableFunction.orElseGet(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), () -> null))
     );
-  }
-
-  @Test
-  @Override
-  public void testOrDefault() {
-    assertThat(
-      ThrowableFunction.orDefault(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), 0)
-    , is(ThrowableFunction.orElseGet(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), () -> 0))
-    );
-    assertThat(
-      ThrowableFunction.orDefault(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), null)
-    , is((Integer) ThrowableFunction.orElseGet(anArray, (t) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, "0"))).sum(), () -> null))
-    );
-    assertArrayEquals(new Integer[] {3, 1, 1, 1, 1, 3}, Arrays.stream(anArray).map((t) -> ThrowableFunction.orDefault(t, (x) -> x / x, 3)).toArray(Integer[]::new));
-  }
-
-  @Test
-  @Override
-  public void testApplyOrElse() {
-    try {
-      ThrowableFunction.applyOrDefault((String) null, (String t) -> t.codePoints().findFirst().orElse(-1), (Integer) null);
-      fail("no one execute this line .");
-    } catch (Exception ex) {
-      assertThat(ex instanceof NullPointerException, is(true));
-    }
-    assertThat(ThrowableFunction.applyOrDefault("仏", (t) -> t.codePoints().findFirst().orElse(-1), -99), is("仏".codePointAt(0)));
-    assertThat(ThrowableFunction.applyOrDefault((String) null, (String t) -> t.codePoints().findFirst().orElse(-1), -99), is(-99));
-    assertThat(ThrowableFunction.applyOrDefault("", (t) -> t.codePoints().findFirst().orElse(-1), -99), is(-1));
-    assertThat(ThrowableFunction.applyOrDefault("南無阿弥陀仏", (t) -> new HashMap<String, Integer>().get(t), -99), is(-99));
   }
 
   @Test

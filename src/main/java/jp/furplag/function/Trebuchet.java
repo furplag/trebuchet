@@ -204,6 +204,17 @@ public interface Trebuchet {
     }
 
     /**
+     * Throws {@link UnsupportedOperationException} .
+     *
+     * @return never
+     * @throws UnsupportedOperationException as this operation is not supported
+     */
+    @Override
+    default <W> TriFunction<T, U, V, W> andThen(Function<? super Boolean, ? extends W> after) {
+      throw new UnsupportedOperationException();
+    }
+
+    /**
      * returns a predicate that represents the logical negation of this predicate .
      *
      * @return a predicate that represents the logical negation of this predicate
@@ -238,17 +249,6 @@ public interface Trebuchet {
      * @return {@code true} if the input argument matches the predicate, otherwise {@code false}
      */
     default boolean test(T t, U u, V v) {/* @formatter:off */return apply(t, u, v);/* @formatter:on */}
-
-    /**
-     * Throws {@link UnsupportedOperationException} .
-     *
-     * @return never
-     * @throws UnsupportedOperationException as this operation is not supported
-     */
-    @Override
-    default <W> TriFunction<T, U, V, W> andThen(Function<? super Boolean, ? extends W> after) {
-      throw new UnsupportedOperationException();
-    }
   }
 
   /**

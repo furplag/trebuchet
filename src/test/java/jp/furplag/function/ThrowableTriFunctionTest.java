@@ -73,6 +73,19 @@ public class ThrowableTriFunctionTest implements FunctionTest {
 
   @Test
   @Override
+  public void testApplyOrElse() {
+    try {
+      ThrowableTriFunction.applyOrDefault(null, null, null, (String t, Integer u, Integer v) -> t.substring(u, v), (String) null);
+      fail("no one execute this line .");
+    } catch (Exception ex) {
+      assertThat(ex instanceof NullPointerException, is(true));
+    }
+    assertThat(ThrowableTriFunction.applyOrDefault(null, 0, 1, (String t, Integer u, Integer v) -> t.substring(u, v), "滅"), is("滅"));
+    assertThat(ThrowableTriFunction.applyOrDefault("南無阿弥陀仏", 0, 1, (String t, Integer u, Integer v) -> t.substring(u, v), "滅"), is("南"));
+  }
+
+  @Test
+  @Override
   public void testOf() {
     assertThat(ThrowableTriFunction.of((t, u, v) -> String.join("", t.substring(u, v)), (TriFunction<String, Integer, Integer, String>) null).apply(null, null, null), is((String) null));
     assertThat(ThrowableTriFunction.of((String t, Integer u, Integer v) -> t.substring(u, v), (Function<Exception, String>) null).apply(null, null, null), is((String) null));
@@ -82,6 +95,15 @@ public class ThrowableTriFunctionTest implements FunctionTest {
     assertThat(ThrowableTriFunction.of((String t, Integer u, Integer v) -> t.substring(u, v), (e) -> e.getClass().getSimpleName()).apply(null, null, null), is("NullPointerException"));
     assertThat(ThrowableTriFunction.of((String t, Integer u, Integer v) -> t.substring(u, v), (e) -> e.getClass().getSimpleName()).apply("南無阿弥陀仏", 0, 999), is("StringIndexOutOfBoundsException"));
     assertThat(ThrowableTriFunction.of((String t, Integer u, Integer v) -> t.substring(u, v), (e) -> e.getClass().getSimpleName()).apply("南無阿弥陀仏", 0, 6), is("南無阿弥陀仏"));
+  }
+
+  @Test
+  @Override
+  public void testOrDefault() {
+    assertThat(ThrowableTriFunction.orDefault(null, null, null, (String t, Integer u, Integer v) -> t.substring(u, v), null), is((String) null));
+    assertThat(ThrowableTriFunction.orDefault(null, 0, 2, (String t, Integer u, Integer v) -> t.substring(u, v), null), is((String) null));
+    assertThat(ThrowableTriFunction.orDefault(null, 0, 2, (String t, Integer u, Integer v) -> t.substring(u, v), "諸行無常"), is("諸行無常"));
+    assertThat(ThrowableTriFunction.orDefault("南無阿弥陀仏", 0, 2, (t, u, v) -> t.substring(u, v), "諸行無常"), is("南無"));
   }
 
   @Test
@@ -104,28 +126,6 @@ public class ThrowableTriFunctionTest implements FunctionTest {
     assertThat(ThrowableTriFunction.orElseGet(null, null, null, (String t, Integer u, Integer v) -> t.substring(u, v), () -> "諸行無常"), is("諸行無常"));
     assertThat(ThrowableTriFunction.orElseGet(null, 0, 2, (String t, Integer u, Integer v) -> t.substring(u, v), () -> "諸行無常"), is("諸行無常"));
     assertThat(ThrowableTriFunction.orElseGet("南無阿弥陀仏", 0, 2, (t, u, v) -> t.substring(u, v), () -> "諸行無常"), is("南無"));
-  }
-
-  @Test
-  @Override
-  public void testOrDefault() {
-    assertThat(ThrowableTriFunction.orDefault(null, null, null, (String t, Integer u, Integer v) -> t.substring(u, v), null), is((String) null));
-    assertThat(ThrowableTriFunction.orDefault(null, 0, 2, (String t, Integer u, Integer v) -> t.substring(u, v), null), is((String) null));
-    assertThat(ThrowableTriFunction.orDefault(null, 0, 2, (String t, Integer u, Integer v) -> t.substring(u, v), "諸行無常"), is("諸行無常"));
-    assertThat(ThrowableTriFunction.orDefault("南無阿弥陀仏", 0, 2, (t, u, v) -> t.substring(u, v), "諸行無常"), is("南無"));
-  }
-
-  @Test
-  @Override
-  public void testApplyOrElse() {
-    try {
-      ThrowableTriFunction.applyOrDefault(null, null, null, (String t, Integer u, Integer v) -> t.substring(u, v), (String) null);
-      fail("no one execute this line .");
-    } catch (Exception ex) {
-      assertThat(ex instanceof NullPointerException, is(true));
-    }
-    assertThat(ThrowableTriFunction.applyOrDefault(null, 0, 1, (String t, Integer u, Integer v) -> t.substring(u, v), "滅"), is("滅"));
-    assertThat(ThrowableTriFunction.applyOrDefault("南無阿弥陀仏", 0, 1, (String t, Integer u, Integer v) -> t.substring(u, v), "滅"), is("南"));
   }
 
   @Test

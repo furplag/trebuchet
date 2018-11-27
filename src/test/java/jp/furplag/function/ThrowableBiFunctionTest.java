@@ -75,6 +75,21 @@ public class ThrowableBiFunctionTest implements FunctionTest {
 
   @Test
   @Override
+  public void testApplyOrElse() {
+    try {
+      ThrowableBiFunction.applyOrDefault((String) null, (Integer) null, (t, u) -> t.codePoints().findFirst().orElse(u), (Integer) null);
+      fail("no one execute this line .");
+    } catch (Exception ex) {
+      assertThat(ex instanceof NullPointerException, is(true));
+    }
+    assertThat(ThrowableBiFunction.applyOrDefault("仏", -1, (t, u) -> t.codePoints().findFirst().orElse(u), -99), is("仏".codePointAt(0)));
+    assertThat(ThrowableBiFunction.applyOrDefault((String) null, -1, (t, u) -> t.codePoints().findFirst().orElse(u), -99), is(-99));
+    assertThat(ThrowableBiFunction.applyOrDefault("", -1, (t, u) -> t.codePoints().findFirst().orElse(u), -99), is(-1));
+    assertThat(ThrowableBiFunction.applyOrDefault("南無阿弥陀仏", -1, (t, u) -> new HashMap<String, Integer>().get(t), -99), is(-99));
+  }
+
+  @Test
+  @Override
   public void testOf() {
     assertThat(ThrowableBiFunction.of((t, u) -> t.split(u), (BiFunction<String, String, String[]>) null).apply(null, ""), is((String[]) null));
     assertThat(ThrowableBiFunction.of((t, u) -> t.split(u), (TriFunction<String, String, Exception, String[]>) null).apply(null, ""), is((String[]) null));
@@ -82,6 +97,20 @@ public class ThrowableBiFunctionTest implements FunctionTest {
     assertThat(ThrowableBiFunction.of((String t, String u) -> t.split(u), (t, u) -> "諸行無常".split(u)).andThen((t) -> String.join("", t)).apply("南無阿弥陀仏", ""), is("南無阿弥陀仏"));
     assertThat(ThrowableBiFunction.of((String t, String u) -> t.split(u), (t, u, e) -> e.getClass().getSimpleName().split("")).andThen((t) -> String.join("", t)).apply(null, null), is("NullPointerException"));
     assertThat(ThrowableBiFunction.of((String t, String u) -> t.split(u), (t, u, e) -> e.getClass().getSimpleName().split("")).andThen((t) -> String.join("", t)).apply("南@無@阿@弥@陀@仏", "@"), is("南無阿弥陀仏"));
+  }
+
+  @Test
+  @Override
+  public void testOrDefault() {
+    assertThat(
+      ThrowableBiFunction.orDefault(anArray, "0", (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u))).sum(), 0)
+    , is(ThrowableBiFunction.orElseGet(anArray, "0", (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u))).sum(), () -> 0))
+    );
+    assertThat(
+        ThrowableBiFunction.orDefault(anArray, "0", (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u))).sum(), null)
+    , is((Integer) ThrowableBiFunction.orElseGet(anArray, "0", (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u))).sum(), () -> null))
+    );
+    assertArrayEquals(new Integer[] {3, 1, 1, 1, 1, 3}, Arrays.stream(anArray).map((t) -> ThrowableBiFunction.orDefault(t, t, (x, y) -> x / y, 3)).toArray(Integer[]::new));
   }
 
   @Test
@@ -106,35 +135,6 @@ public class ThrowableBiFunctionTest implements FunctionTest {
       ThrowableBiFunction.orElseGet(anArray, 0, (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u.toString()))).sum(), null)
     , is((Integer) ThrowableBiFunction.orElseGet(anArray, 0, (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u.toString()))).sum(), () -> null))
     );
-  }
-
-  @Test
-  @Override
-  public void testOrDefault() {
-    assertThat(
-      ThrowableBiFunction.orDefault(anArray, "0", (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u))).sum(), 0)
-    , is(ThrowableBiFunction.orElseGet(anArray, "0", (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u))).sum(), () -> 0))
-    );
-    assertThat(
-        ThrowableBiFunction.orDefault(anArray, "0", (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u))).sum(), null)
-    , is((Integer) ThrowableBiFunction.orElseGet(anArray, "0", (t, u) -> Arrays.asList(t).stream().mapToInt((x) -> Integer.valueOf(Objects.toString(x, u))).sum(), () -> null))
-    );
-    assertArrayEquals(new Integer[] {3, 1, 1, 1, 1, 3}, Arrays.stream(anArray).map((t) -> ThrowableBiFunction.orDefault(t, t, (x, y) -> x / y, 3)).toArray(Integer[]::new));
-  }
-
-  @Test
-  @Override
-  public void testApplyOrElse() {
-    try {
-      ThrowableBiFunction.applyOrDefault((String) null, (Integer) null, (t, u) -> t.codePoints().findFirst().orElse(u), (Integer) null);
-      fail("no one execute this line .");
-    } catch (Exception ex) {
-      assertThat(ex instanceof NullPointerException, is(true));
-    }
-    assertThat(ThrowableBiFunction.applyOrDefault("仏", -1, (t, u) -> t.codePoints().findFirst().orElse(u), -99), is("仏".codePointAt(0)));
-    assertThat(ThrowableBiFunction.applyOrDefault((String) null, -1, (t, u) -> t.codePoints().findFirst().orElse(u), -99), is(-99));
-    assertThat(ThrowableBiFunction.applyOrDefault("", -1, (t, u) -> t.codePoints().findFirst().orElse(u), -99), is(-1));
-    assertThat(ThrowableBiFunction.applyOrDefault("南無阿弥陀仏", -1, (t, u) -> new HashMap<String, Integer>().get(t), -99), is(-99));
   }
 
   @Test

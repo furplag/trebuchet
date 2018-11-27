@@ -99,17 +99,6 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
   }
 
   /**
-   * returns the result of {@link #test(Object) predicate.test(T)} if done it normally, or {@code false} if error occurred .
-   *
-   * @param <T> the type of the input to the predicate
-   * @param predicate {@link Predicate}, may not be null
-   * @return the result of {@link #test(Object) predicate.test(T)} if done it normally, or {@code false} if error occurred
-   */
-  static <T> boolean orNot(final T t, final ThrowablePredicate<? super T> predicate) {
-    return orElseGet(t, predicate, () -> false);
-  }
-
-  /**
    * returns the result of {@link #test(Object) predicate.test(T)} if done it normally, or fallen if error occurred .
    *
    * @param <T> the type of the input to the predicate
@@ -122,10 +111,34 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
   }
 
   /**
+   * returns the result of {@link #test(Object) predicate.test(T)} if done it normally, or {@code false} if error occurred .
+   *
+   * @param <T> the type of the input to the predicate
+   * @param predicate {@link Predicate}, may not be null
+   * @return the result of {@link #test(Object) predicate.test(T)} if done it normally, or {@code false} if error occurred
+   */
+  static <T> boolean orNot(final T t, final ThrowablePredicate<? super T> predicate) {
+    return orElseGet(t, predicate, () -> false);
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
-  default boolean test(T t)  {/* @formatter:off */try {return applyOrThrow(t);} catch (Throwable e) {Trebuchet.sneakyThrow(e);} return false;/* @formatter:on */};
+  default ThrowablePredicate<T> and(Predicate<? super T> other) {
+    return (t) -> test(t) && Objects.requireNonNullElse(Trebuchet.defaults(other).test(t), false);
+  };
+
+  /**
+   * Throws {@link UnsupportedOperationException} .
+   *
+   * @return never
+   * @throws UnsupportedOperationException as this operation is not supported
+   */
+  @Override
+  default <V> ThrowableFunction<T, V> andThen(Function<? super Boolean, ? extends V> after) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * {@inheritDoc}
@@ -139,26 +152,13 @@ public interface ThrowablePredicate<T> extends ThrowableFunction<T, Boolean>, Pr
    * {@inheritDoc}
    */
   @Override
-  default ThrowablePredicate<T> and(Predicate<? super T> other) {
-    return (t) -> test(t) && Objects.requireNonNullElse(Trebuchet.defaults(other).test(t), false);
+  default ThrowablePredicate<T> or(Predicate<? super T> other) {
+    return (t) -> test(t) || Objects.requireNonNullElse(Trebuchet.defaults(other).test(t), false);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  default ThrowablePredicate<T> or(Predicate<? super T> other) {
-    return (t) -> test(t) || Objects.requireNonNullElse(Trebuchet.defaults(other).test(t), false);
-  }
-
-  /**
-   * Throws {@link UnsupportedOperationException} .
-   *
-   * @return never
-   * @throws UnsupportedOperationException as this operation is not supported
-   */
-  @Override
-  default <V> ThrowableFunction<T, V> andThen(Function<? super Boolean, ? extends V> after) {
-    throw new UnsupportedOperationException();
-  }
+  default boolean test(T t)  {/* @formatter:off */try {return applyOrThrow(t);} catch (Throwable e) {Trebuchet.sneakyThrow(e);} return false;/* @formatter:on */}
 }

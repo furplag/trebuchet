@@ -170,7 +170,20 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * {@inheritDoc}
    */
   @Override
-  default boolean test(T t, U u) {/* @formatter:off */return apply(t, u);/* @formatter:on */}
+  default ThrowableBiPredicate<T, U> and(BiPredicate<? super T, ? super U> other) {
+    return (t, u) -> test(t, u) && Objects.requireNonNullElse(Trebuchet.defaults(other).test(t, u), false);
+  }
+
+  /**
+   * Throws {@link UnsupportedOperationException} .
+   *
+   * @return never
+   * @throws UnsupportedOperationException as this operation is not supported
+   */
+  @Override
+  default <V> ThrowableBiFunction<T, U, V> andThen(Function<? super Boolean, ? extends V> after) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * {@inheritDoc}
@@ -184,26 +197,13 @@ public interface ThrowableBiPredicate<T, U> extends ThrowableBiFunction<T, U, Bo
    * {@inheritDoc}
    */
   @Override
-  default ThrowableBiPredicate<T, U> and(BiPredicate<? super T, ? super U> other) {
-    return (t, u) -> test(t, u) && Objects.requireNonNullElse(Trebuchet.defaults(other).test(t, u), false);
+  default ThrowableBiPredicate<T, U> or(BiPredicate<? super T, ? super U> other) {
+    return (t, u) -> test(t, u) || Objects.requireNonNullElse(Trebuchet.defaults(other).test(t, u), false);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  default ThrowableBiPredicate<T, U> or(BiPredicate<? super T, ? super U> other) {
-    return (t, u) -> test(t, u) || Objects.requireNonNullElse(Trebuchet.defaults(other).test(t, u), false);
-  }
-
-  /**
-   * Throws {@link UnsupportedOperationException} .
-   *
-   * @return never
-   * @throws UnsupportedOperationException as this operation is not supported
-   */
-  @Override
-  default <V> ThrowableBiFunction<T, U, V> andThen(Function<? super Boolean, ? extends V> after) {
-    throw new UnsupportedOperationException();
-  }
+  default boolean test(T t, U u) {/* @formatter:off */return apply(t, u);/* @formatter:on */}
 }

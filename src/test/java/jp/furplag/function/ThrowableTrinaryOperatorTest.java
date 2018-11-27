@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.furplag.function;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -37,5 +38,4 @@ public class ThrowableTrinaryOperatorTest {
     assertThat(minByR.apply(1, 2, 3), is(3));
     assertThat(maxByR.apply(1, 2, 3), is(1));
   }
-
 }

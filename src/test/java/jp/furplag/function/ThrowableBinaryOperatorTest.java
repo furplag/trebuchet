@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.furplag.function;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -34,10 +35,14 @@ public class ThrowableBinaryOperatorTest {
   }
 
   @Test
+  public void testMaxBy() {
+    assertThat(ThrowableBinaryOperator.maxBy(Integer::compare).apply(0, 1), is(BinaryOperator.maxBy(Integer::compare).apply(0, 1)));
+    assertThat(ThrowableBinaryOperator.maxBy(Integer::compare).apply(2, 1), is(BinaryOperator.maxBy(Integer::compare).apply(2, 1)));
+  }
+
+  @Test
   public void testMinBy() {
     assertThat(ThrowableBinaryOperator.minBy(Integer::compare).apply(0, 1), is(BinaryOperator.minBy(Integer::compare).apply(0, 1)));
-    assertThat(ThrowableBinaryOperator.maxBy(Integer::compare).apply(0, 1), is(BinaryOperator.maxBy(Integer::compare).apply(0, 1)));
     assertThat(ThrowableBinaryOperator.minBy(Integer::compare).apply(2, 1), is(BinaryOperator.minBy(Integer::compare).apply(2, 1)));
-    assertThat(ThrowableBinaryOperator.maxBy(Integer::compare).apply(2, 1), is(BinaryOperator.maxBy(Integer::compare).apply(2, 1)));
   }
 }

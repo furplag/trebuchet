@@ -38,6 +38,19 @@ public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
    *
    * @param <T> the type of the first argument to the operation
    * @param <U> the type of the second argument to the operation
+   * @param consumer {@link BiConsumer}, may not be null
+   * @param fallen {@link BiConsumer}, do nothing if this is null
+   * @return {@link ThrowableBiConsumer}
+   */
+  static <T, U> ThrowableBiConsumer<T, U> of(final ThrowableBiConsumer<? super T, ? super U> consumer, final BiConsumer<? super T, ? super U> fallen) {
+    return of(consumer, (t, u, e) -> Trebuchet.defaults(fallen).accept(t, u));
+  }
+
+  /**
+   * should never write &quot;ugly&quot; try-catch block to handle {@link Throwable exceptions} in lambda expression .
+   *
+   * @param <T> the type of the first argument to the operation
+   * @param <U> the type of the second argument to the operation
    * @param <E> anything thrown
    * @param consumer {@link BiConsumer}, may not be null
    * @param fallen {@link TriConsumer}, do nothing if this is null
@@ -52,16 +65,17 @@ public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
   }
 
   /**
-   * should never write &quot;ugly&quot; try-catch block to handle {@link Throwable exceptions} in lambda expression .
+   * {@link #accept(Object, Object) consumer.accept(T, U)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(T, U)} if error occurred .
    *
    * @param <T> the type of the first argument to the operation
    * @param <U> the type of the second argument to the operation
+   * @param t the value of the first argument to the operation
+   * @param u the value of the second argument to the operation
    * @param consumer {@link BiConsumer}, may not be null
    * @param fallen {@link BiConsumer}, do nothing if this is null
-   * @return {@link ThrowableBiConsumer}
    */
-  static <T, U> ThrowableBiConsumer<T, U> of(final ThrowableBiConsumer<? super T, ? super U> consumer, final BiConsumer<? super T, ? super U> fallen) {
-    return of(consumer, (t, u, e) -> Trebuchet.defaults(fallen).accept(t, u));
+  static <T, U> void orElse(final T t, final U u, final ThrowableBiConsumer<? super T, ? super U> consumer, final BiConsumer<? super T, ? super U> fallen) {
+    orElse(t, u, consumer, (x, y, ex) -> Trebuchet.defaults(fallen).accept(x, y));
   }
 
   /**
@@ -77,20 +91,6 @@ public interface ThrowableBiConsumer<T, U> extends BiConsumer<T, U> {
    */
   static <T, U, E extends Throwable> void orElse(final T t, final U u, final ThrowableBiConsumer<? super T, ? super U> consumer, final TriConsumer<? super T, ? super U, ? super E> fallen) {
     of(consumer, fallen).accept(t, u);
-  }
-
-  /**
-   * {@link #accept(Object, Object) consumer.accept(T, U)} if done it normally, or {@link BiConsumer#accept(Object, Object) fallen.accept(T, U)} if error occurred .
-   *
-   * @param <T> the type of the first argument to the operation
-   * @param <U> the type of the second argument to the operation
-   * @param t the value of the first argument to the operation
-   * @param u the value of the second argument to the operation
-   * @param consumer {@link BiConsumer}, may not be null
-   * @param fallen {@link BiConsumer}, do nothing if this is null
-   */
-  static <T, U> void orElse(final T t, final U u, final ThrowableBiConsumer<? super T, ? super U> consumer, final BiConsumer<? super T, ? super U> fallen) {
-    orElse(t, u, consumer, (x, y, ex) -> Trebuchet.defaults(fallen).accept(x, y));
   }
 
   /**
