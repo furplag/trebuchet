@@ -3,10 +3,10 @@
   <groupId>jp.furplag.sandbox</groupId>
   <artifactId>trebuchet</artifactId>
   <versioning>
-    <release>3.0.0</release>
+    <release>3.0.1-FINAL</release>
     <versions>
-      <version>3.0.0</version>
+      <version>3.0.1-FINAL</version>
     </versions>
-    <lastUpdated>20190228083911</lastUpdated>
+    <lastUpdated>20210426090232</lastUpdated>
   </versioning>
 </metadata>
