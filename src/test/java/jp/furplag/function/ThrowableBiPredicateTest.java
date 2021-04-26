@@ -16,22 +16,21 @@
 
 package jp.furplag.function;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
-
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import jp.furplag.function.Trebuchet.TriPredicate;
 
 public class ThrowableBiPredicateTest {
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void paintItGreen() {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
-    isOdd.andThen((t) -> !t);
+    assertThrows(UnsupportedOperationException.class, () -> isOdd.andThen((t) -> !t));
   }
 
   @Test
@@ -41,11 +40,11 @@ public class ThrowableBiPredicateTest {
       isOdd.test(null, 0);
       fail("there must raise NullPointerException .");
     } catch (Exception ex) {
-      assertThat(ex instanceof NullPointerException, is(true));
+      assertTrue(ex instanceof NullPointerException);
     }
-    assertThat(ThrowableBiPredicate.orNot(null, 1, isOdd), is(false));
-    assertThat(ThrowableBiPredicate.orNot(1, 1, isOdd), is(false));
-    assertThat(ThrowableBiPredicate.orNot(1, 2, isOdd), is(true));
+    assertFalse(ThrowableBiPredicate.orNot(null, 1, isOdd));
+    assertFalse(ThrowableBiPredicate.orNot(1, 1, isOdd));
+    assertTrue(ThrowableBiPredicate.orNot(1, 2, isOdd));
   }
 
   @Test
@@ -53,34 +52,34 @@ public class ThrowableBiPredicateTest {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
     ThrowableBiPredicate<Integer, Integer> clanOfThree = (t, u) -> (t + u) % 3 == 0;
     ThrowableBiPredicate<Integer, Integer> isOddAndClanOfThree = isOdd.and(clanOfThree);
-    assertThat(isOddAndClanOfThree.apply(0, 1), is(false));
-    assertThat(isOddAndClanOfThree.apply(3, 3), is(false));
-    assertThat(isOddAndClanOfThree.apply(6, 3), is(true));
+    assertFalse(isOddAndClanOfThree.apply(0, 1));
+    assertFalse(isOddAndClanOfThree.apply(3, 3));
+    assertTrue(isOddAndClanOfThree.apply(6, 3));
 
-    assertThat(isOdd.and(null).apply(0, 1), is(false));
-    assertThat(isOdd.and(null).apply(3, 3), is(false));
-    assertThat(isOdd.and(null).apply(6, 3), is(false));
+    assertFalse(isOdd.and(null).apply(0, 1));
+    assertFalse(isOdd.and(null).apply(3, 3));
+    assertFalse(isOdd.and(null).apply(6, 3));
   }
 
   @Test
   public void testNegate() {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
     ThrowableBiPredicate<Integer, Integer> isEven = isOdd.negate();
-    assertThat(isEven.apply(0, 1), is(false));
-    assertThat(isEven.apply(3, 3), is(true));
-    assertThat(isEven.apply(6, 3), is(false));
-    assertThat(isEven.apply(6, 4), is(true));
+    assertFalse(isEven.apply(0, 1));
+    assertTrue(isEven.apply(3, 3));
+    assertFalse(isEven.apply(6, 3));
+    assertTrue(isEven.apply(6, 4));
   }
 
   @Test
   public void testOf() {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
-    assertThat(ThrowableBiPredicate.of(isOdd, (BiPredicate<Integer, Integer>) null).apply(null, null), is(false));
-    assertThat(ThrowableBiPredicate.of(isOdd, (t, u) -> t != null).apply(null, null), is(false));
-    assertThat(ThrowableBiPredicate.of(isOdd, (t, u) -> t != null).apply(1, 1), is(false));
-    assertThat(ThrowableBiPredicate.of(isOdd, (TriPredicate<Integer, Integer, Throwable>) null).apply(null, null), is(false));
-    assertThat(ThrowableBiPredicate.of(isOdd, (t, u, e) -> !(e instanceof NullPointerException)).apply(null, null), is(false));
-    assertThat(ThrowableBiPredicate.of(isOdd, (t, u, e) -> t != null).apply(1, 2), is(true));
+    assertFalse(ThrowableBiPredicate.of(isOdd, (BiPredicate<Integer, Integer>) null).apply(null, null));
+    assertFalse(ThrowableBiPredicate.of(isOdd, (t, u) -> t != null).apply(null, null));
+    assertFalse(ThrowableBiPredicate.of(isOdd, (t, u) -> t != null).apply(1, 1));
+    assertFalse(ThrowableBiPredicate.of(isOdd, (TriPredicate<Integer, Integer, Throwable>) null).apply(null, null));
+    assertFalse(ThrowableBiPredicate.of(isOdd, (t, u, e) -> !(e instanceof NullPointerException)).apply(null, null));
+    assertTrue(ThrowableBiPredicate.of(isOdd, (t, u, e) -> t != null).apply(1, 2));
   }
 
   @Test
@@ -88,55 +87,55 @@ public class ThrowableBiPredicateTest {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
     ThrowableBiPredicate<Integer, Integer> clanOfThree = (t, u) -> (t + u) % 3 == 0;
     ThrowableBiPredicate<Integer, Integer> isOddOrClanOfThree = isOdd.or(clanOfThree);
-    assertThat(isOddOrClanOfThree.apply(0, 1), is(true));
-    assertThat(isOddOrClanOfThree.apply(3, 3), is(true));
-    assertThat(isOddOrClanOfThree.apply(6, 3), is(true));
-    assertThat(isOddOrClanOfThree.apply(6, 4), is(false));
+    assertTrue(isOddOrClanOfThree.apply(0, 1));
+    assertTrue(isOddOrClanOfThree.apply(3, 3));
+    assertTrue(isOddOrClanOfThree.apply(6, 3));
+    assertFalse(isOddOrClanOfThree.apply(6, 4));
 
-    assertThat(isOdd.or(null).apply(0, 1), is(true));
-    assertThat(isOdd.or(null).apply(3, 3), is(false));
-    assertThat(isOdd.or(null).apply(6, 3), is(true));
+    assertTrue(isOdd.or(null).apply(0, 1));
+    assertFalse(isOdd.or(null).apply(3, 3));
+    assertTrue(isOdd.or(null).apply(6, 3));
   }
 
   @Test
   public void testOrDefault() {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
-    assertThat(ThrowableBiPredicate.orDefault(null, null, isOdd, false), is(false));
-    assertThat(ThrowableBiPredicate.orDefault(null, null, isOdd, true), is(true));
-    assertThat(ThrowableBiPredicate.orDefault(1, 1, isOdd, false), is(false));
-    assertThat(ThrowableBiPredicate.orDefault(1, 2, isOdd, false), is(true));
-    assertThat(ThrowableBiPredicate.orDefault(1, 1, isOdd, true), is(false));
-    assertThat(ThrowableBiPredicate.orDefault(1, 2, isOdd, true), is(true));
+    assertFalse(ThrowableBiPredicate.orDefault(null, null, isOdd, false));
+    assertTrue(ThrowableBiPredicate.orDefault(null, null, isOdd, true));
+    assertFalse(ThrowableBiPredicate.orDefault(1, 1, isOdd, false));
+    assertTrue(ThrowableBiPredicate.orDefault(1, 2, isOdd, false));
+    assertFalse(ThrowableBiPredicate.orDefault(1, 1, isOdd, true));
+    assertTrue(ThrowableBiPredicate.orDefault(1, 2, isOdd, true));
   }
 
   @Test
   public void testOrElse() {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
-    assertThat(ThrowableBiPredicate.orElse(null, null, isOdd, (BiPredicate<Integer, Integer>) null), is(false));
-    assertThat(ThrowableBiPredicate.orElse(null, null, isOdd, (TriPredicate<Integer, Integer, Throwable>) null), is(false));
-    assertThat(ThrowableBiPredicate.orElse(null, null, isOdd, (t, u, e) -> !(e instanceof NullPointerException)), is(false));
-    assertThat(ThrowableBiPredicate.orElse(null, null, isOdd, (t, u) -> t != null), is(false));
-    assertThat(ThrowableBiPredicate.orElse(1, 1, isOdd, (t) -> t != null), is(false));
-    assertThat(ThrowableBiPredicate.orElse(1, 2, isOdd, (t) -> t != null), is(true));
+    assertFalse(ThrowableBiPredicate.orElse(null, null, isOdd, (BiPredicate<Integer, Integer>) null));
+    assertFalse(ThrowableBiPredicate.orElse(null, null, isOdd, (TriPredicate<Integer, Integer, Throwable>) null));
+    assertFalse(ThrowableBiPredicate.orElse(null, null, isOdd, (t, u, e) -> !(e instanceof NullPointerException)));
+    assertFalse(ThrowableBiPredicate.orElse(null, null, isOdd, (t, u) -> t != null));
+    assertFalse(ThrowableBiPredicate.orElse(1, 1, isOdd, (t) -> t != null));
+    assertTrue(ThrowableBiPredicate.orElse(1, 2, isOdd, (t) -> t != null));
   }
 
   @Test
   public void testOrElseGet() {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
-    assertThat(ThrowableBiPredicate.orElseGet(null, null, isOdd, (BooleanSupplier) null), is(false));
-    assertThat(ThrowableBiPredicate.orElseGet(null, null, isOdd, () -> false), is(false));
-    assertThat(ThrowableBiPredicate.orElseGet(null, null, isOdd, () -> true), is(true));
-    assertThat(ThrowableBiPredicate.orElseGet(1, 1, isOdd, () -> false), is(false));
-    assertThat(ThrowableBiPredicate.orElseGet(1, 2, isOdd, () -> false), is(true));
-    assertThat(ThrowableBiPredicate.orElseGet(1, 1, isOdd, () -> true), is(false));
-    assertThat(ThrowableBiPredicate.orElseGet(1, 2, isOdd, () -> true), is(true));
+    assertFalse(ThrowableBiPredicate.orElseGet(null, null, isOdd, (BooleanSupplier) null));
+    assertFalse(ThrowableBiPredicate.orElseGet(null, null, isOdd, () -> false));
+    assertTrue(ThrowableBiPredicate.orElseGet(null, null, isOdd, () -> true));
+    assertFalse(ThrowableBiPredicate.orElseGet(1, 1, isOdd, () -> false));
+    assertTrue(ThrowableBiPredicate.orElseGet(1, 2, isOdd, () -> false));
+    assertFalse(ThrowableBiPredicate.orElseGet(1, 1, isOdd, () -> true));
+    assertTrue(ThrowableBiPredicate.orElseGet(1, 2, isOdd, () -> true));
   }
 
   @Test
   public void testOrNot() {
     ThrowableBiPredicate<Integer, Integer> isOdd = (t, u) -> (t + u) % 2 != 0;
-    assertThat(ThrowableBiPredicate.orNot(null, null, isOdd), is(false));
-    assertThat(ThrowableBiPredicate.orNot(1, 1, isOdd), is(false));
-    assertThat(ThrowableBiPredicate.orNot(1, 2, isOdd), is(true));
+    assertFalse(ThrowableBiPredicate.orNot(null, null, isOdd));
+    assertFalse(ThrowableBiPredicate.orNot(1, 1, isOdd));
+    assertTrue(ThrowableBiPredicate.orNot(1, 2, isOdd));
   }
 }

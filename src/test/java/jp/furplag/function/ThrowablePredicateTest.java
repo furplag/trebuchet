@@ -16,31 +16,31 @@
 
 package jp.furplag.function;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ThrowablePredicateTest {
 
   @Test
   public void orDefault() {
-    assertThat(ThrowablePredicate.orDefault((Integer) null, (t) -> t % 2 != 0, false), is(false));
-    assertThat(ThrowablePredicate.orDefault((Integer) null, (t) -> t % 2 != 0, true), is(true));
-    assertThat(ThrowablePredicate.orDefault(2, (t) -> t % 2 != 0, false), is(false));
-    assertThat(ThrowablePredicate.orDefault(3, (t) -> t % 2 != 0, false), is(true));
-    assertThat(ThrowablePredicate.orDefault(2, (t) -> t % 2 != 0, true), is(false));
-    assertThat(ThrowablePredicate.orDefault(3, (t) -> t % 2 != 0, true), is(true));
+    assertFalse(ThrowablePredicate.orDefault((Integer) null, (t) -> t % 2 != 0, false));
+    assertTrue(ThrowablePredicate.orDefault((Integer) null, (t) -> t % 2 != 0, true));
+    assertFalse(ThrowablePredicate.orDefault(2, (t) -> t % 2 != 0, false));
+    assertTrue(ThrowablePredicate.orDefault(3, (t) -> t % 2 != 0, false));
+    assertFalse(ThrowablePredicate.orDefault(2, (t) -> t % 2 != 0, true));
+    assertTrue(ThrowablePredicate.orDefault(3, (t) -> t % 2 != 0, true));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void paintItGreen() {
     ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
-    isOdd.andThen((t) -> !t);
+    assertThrows(UnsupportedOperationException.class, () -> isOdd.andThen((t) -> !t));
   }
 
   @Test
@@ -50,11 +50,11 @@ public class ThrowablePredicateTest {
       isOdd.test(null);
       fail("there must raise NullPointerException .");
     } catch (Exception ex) {
-      assertThat(ex instanceof NullPointerException, is(true));
+      assertTrue(ex instanceof NullPointerException);
     }
-    assertThat(ThrowablePredicate.orNot(null, isOdd), is(false));
-    assertThat(ThrowablePredicate.orNot(2, isOdd), is(false));
-    assertThat(ThrowablePredicate.orNot(3, isOdd), is(true));
+    assertFalse(ThrowablePredicate.orNot(null, isOdd));
+    assertFalse(ThrowablePredicate.orNot(2, isOdd));
+    assertTrue(ThrowablePredicate.orNot(3, isOdd));
   }
 
   @Test
@@ -62,32 +62,32 @@ public class ThrowablePredicateTest {
     ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
     ThrowablePredicate<Integer> clanOfThree = (t) -> (t) % 3 == 0;
     ThrowablePredicate<Integer> isOddAndClanOfThree = isOdd.and(clanOfThree);
-    assertThat(isOddAndClanOfThree.apply(1), is(false));
-    assertThat(isOddAndClanOfThree.apply(2), is(false));
-    assertThat(isOddAndClanOfThree.apply(3), is(true));
+    assertFalse(isOddAndClanOfThree.apply(1));
+    assertFalse(isOddAndClanOfThree.apply(2));
+    assertTrue(isOddAndClanOfThree.apply(3));
 
-    assertThat(isOdd.and(null).apply(1), is(false));
-    assertThat(isOdd.and(null).apply(2), is(false));
-    assertThat(isOdd.and(null).apply(3), is(false));
+    assertFalse(isOdd.and(null).apply(1));
+    assertFalse(isOdd.and(null).apply(2));
+    assertFalse(isOdd.and(null).apply(3));
   }
 
   @Test
   public void testNegate() {
     ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
     ThrowablePredicate<Integer> isEven = isOdd.negate();
-    assertThat(isEven.apply(1), is(false));
-    assertThat(isEven.apply(2), is(true));
-    assertThat(isEven.apply(3), is(false));
+    assertFalse(isEven.apply(1));
+    assertTrue(isEven.apply(2));
+    assertFalse(isEven.apply(3));
   }
 
   @Test
   public void testOf() {
-    assertThat(ThrowablePredicate.of((t) -> t % 2 != 0, (Predicate<Integer>) null).apply(null), is(false));
-    assertThat(ThrowablePredicate.of((t) -> t % 2 != 0, (BiPredicate<Integer, Throwable>) null).apply(null), is(false));
-    assertThat(ThrowablePredicate.of((Integer t) -> t % 2 != 0, (t, e) -> !(e instanceof NullPointerException)).apply(null), is(false));
-    assertThat(ThrowablePredicate.of((Integer t) -> t % 2 != 0, (t) -> t != null).apply(null), is(false));
-    assertThat(ThrowablePredicate.of((Integer t) -> t % 2 != 0, (t) -> t != null).apply(2), is(false));
-    assertThat(ThrowablePredicate.of((Integer t) -> t % 2 != 0, (t) -> t != null).apply(3), is(true));
+    assertFalse(ThrowablePredicate.of((t) -> t % 2 != 0, (Predicate<Integer>) null).apply(null));
+    assertFalse(ThrowablePredicate.of((t) -> t % 2 != 0, (BiPredicate<Integer, Throwable>) null).apply(null));
+    assertFalse(ThrowablePredicate.of((Integer t) -> t % 2 != 0, (t, e) -> !(e instanceof NullPointerException)).apply(null));
+    assertFalse(ThrowablePredicate.of((Integer t) -> t % 2 != 0, (t) -> t != null).apply(null));
+    assertFalse(ThrowablePredicate.of((Integer t) -> t % 2 != 0, (t) -> t != null).apply(2));
+    assertTrue(ThrowablePredicate.of((Integer t) -> t % 2 != 0, (t) -> t != null).apply(3));
   }
 
   @Test
@@ -95,40 +95,40 @@ public class ThrowablePredicateTest {
     ThrowablePredicate<Integer> isOdd = (t) -> t % 2 != 0;
     ThrowablePredicate<Integer> clanOfThree = (t) -> (t) % 3 == 0;
     ThrowablePredicate<Integer> isOddOrClanOfThree = isOdd.or(clanOfThree);
-    assertThat(isOddOrClanOfThree.apply(1), is(true));
-    assertThat(isOddOrClanOfThree.apply(2), is(false));
-    assertThat(isOddOrClanOfThree.apply(3), is(true));
+    assertTrue(isOddOrClanOfThree.apply(1));
+    assertFalse(isOddOrClanOfThree.apply(2));
+    assertTrue(isOddOrClanOfThree.apply(3));
 
-    assertThat(isOdd.or(null).apply(1), is(true));
-    assertThat(isOdd.or(null).apply(2), is(false));
-    assertThat(isOdd.or(null).apply(3), is(true));
+    assertTrue(isOdd.or(null).apply(1));
+    assertFalse(isOdd.or(null).apply(2));
+    assertTrue(isOdd.or(null).apply(3));
   }
 
   @Test
   public void testOrElse() {
-    assertThat(ThrowablePredicate.orElse((Integer) null, (t) -> t % 2 != 0, (Predicate<Integer>) null), is(false));
-    assertThat(ThrowablePredicate.orElse((Integer) null, (t) -> t % 2 != 0, (BiPredicate<Integer, Throwable>) null), is(false));
-    assertThat(ThrowablePredicate.orElse((Integer) null, (t) -> t % 2 != 0, (t, e) -> !(e instanceof NullPointerException)), is(false));
-    assertThat(ThrowablePredicate.orElse((Integer) null, (t) -> t % 2 != 0, (t) -> t != null), is(false));
-    assertThat(ThrowablePredicate.orElse(2, (t) -> t % 2 != 0, (t) -> t != null), is(false));
-    assertThat(ThrowablePredicate.orElse(3, (t) -> t % 2 != 0, (t) -> t != null), is(true));
+    assertFalse(ThrowablePredicate.orElse((Integer) null, (t) -> t % 2 != 0, (Predicate<Integer>) null));
+    assertFalse(ThrowablePredicate.orElse((Integer) null, (t) -> t % 2 != 0, (BiPredicate<Integer, Throwable>) null));
+    assertFalse(ThrowablePredicate.orElse((Integer) null, (t) -> t % 2 != 0, (t, e) -> !(e instanceof NullPointerException)));
+    assertFalse(ThrowablePredicate.orElse((Integer) null, (t) -> t % 2 != 0, (t) -> t != null));
+    assertFalse(ThrowablePredicate.orElse(2, (t) -> t % 2 != 0, (t) -> t != null));
+    assertTrue(ThrowablePredicate.orElse(3, (t) -> t % 2 != 0, (t) -> t != null));
   }
 
   @Test
   public void testOrElseGet() {
-    assertThat(ThrowablePredicate.orElseGet((Integer) null, (t) -> t % 2 != 0, (BooleanSupplier) null), is(false));
-    assertThat(ThrowablePredicate.orElseGet((Integer) null, (t) -> t % 2 != 0, () -> false), is(false));
-    assertThat(ThrowablePredicate.orElseGet((Integer) null, (t) -> t % 2 != 0, () -> true), is(true));
-    assertThat(ThrowablePredicate.orElseGet(2, (t) -> t % 2 != 0, () -> false), is(false));
-    assertThat(ThrowablePredicate.orElseGet(3, (t) -> t % 2 != 0, () -> false), is(true));
-    assertThat(ThrowablePredicate.orElseGet(2, (t) -> t % 2 != 0, () -> true), is(false));
-    assertThat(ThrowablePredicate.orElseGet(3, (t) -> t % 2 != 0, () -> true), is(true));
+    assertFalse(ThrowablePredicate.orElseGet((Integer) null, (t) -> t % 2 != 0, (BooleanSupplier) null));
+    assertFalse(ThrowablePredicate.orElseGet((Integer) null, (t) -> t % 2 != 0, () -> false));
+    assertTrue(ThrowablePredicate.orElseGet((Integer) null, (t) -> t % 2 != 0, () -> true));
+    assertFalse(ThrowablePredicate.orElseGet(2, (t) -> t % 2 != 0, () -> false));
+    assertTrue(ThrowablePredicate.orElseGet(3, (t) -> t % 2 != 0, () -> false));
+    assertFalse(ThrowablePredicate.orElseGet(2, (t) -> t % 2 != 0, () -> true));
+    assertTrue(ThrowablePredicate.orElseGet(3, (t) -> t % 2 != 0, () -> true));
   }
 
   @Test
   public void testOrNot() {
-    assertThat(ThrowablePredicate.orNot((Integer) null, (t) -> t % 2 != 0), is(false));
-    assertThat(ThrowablePredicate.orNot(2, (t) -> t % 2 != 0), is(false));
-    assertThat(ThrowablePredicate.orNot(3, (t) -> t % 2 != 0), is(true));
+    assertFalse(ThrowablePredicate.orNot((Integer) null, (t) -> t % 2 != 0));
+    assertFalse(ThrowablePredicate.orNot(2, (t) -> t % 2 != 0));
+    assertTrue(ThrowablePredicate.orNot(3, (t) -> t % 2 != 0));
   }
 }
