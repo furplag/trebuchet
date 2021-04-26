@@ -16,30 +16,27 @@
 
 package jp.furplag.function;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ThrowableUnaryOperatorTest {
 
   @Test
   public void test() {
     ThrowableUnaryOperator<String> one = (t) -> t.substring(0, 1);
-    assertThat(ThrowableFunction.of(one, (t, e) -> "諸行無常").apply((String) null), is("諸行無常"));
-    assertThat(ThrowableFunction.of(one, (t, e) -> "諸行無常").apply("諸行無常"), is("諸"));
+    assertEquals("諸行無常", ThrowableFunction.of(one, (t, e) -> "諸行無常").apply((String) null));
+    assertEquals("諸", ThrowableFunction.of(one, (t, e) -> "諸行無常").apply("諸行無常"));
   }
 
   @Test
   public void testIdentity() {
     IntStream.rangeClosed(0, 9999).forEach((i) -> {
-      assertThat(UnaryOperator.identity().apply(i), is(i));
-      assertThat(ThrowableUnaryOperator.identity().apply(i), is(i));
-      assertThat(ThrowableUnaryOperator.identity().apply(i), is(UnaryOperator.identity().apply(i)));
-      assertThat(ThrowableUnaryOperator.identity().apply((String) null), is(UnaryOperator.identity().apply((String) null)));
+      assertEquals(i, UnaryOperator.identity().apply(i));
+      assertEquals(i, ThrowableUnaryOperator.identity().apply(i));
+      assertEquals(UnaryOperator.identity().apply(i), ThrowableUnaryOperator.identity().apply(i));
+      assertEquals(UnaryOperator.identity().apply((String) null), ThrowableUnaryOperator.identity().apply((String) null));
     });
   }
 

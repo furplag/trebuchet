@@ -16,9 +16,10 @@
 
 package jp.furplag.function;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -27,9 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import jp.furplag.function.misc.ConsumerTest;
 
 public class ThrowableConsumerTest implements ConsumerTest {
@@ -40,13 +39,13 @@ public class ThrowableConsumerTest implements ConsumerTest {
       ThrowableConsumer.orElse(Integer.valueOf(0), (t) -> System.out.println(t / t), (t, e) -> Trebuchet.sneakyThrow(e));
       fail("there must raise ArithmeticException .");
     } catch (Exception ex) {
-      assertThat(ex instanceof ArithmeticException, is(true));
+      assertTrue(ex instanceof ArithmeticException);
     }
     final int[] divided = { -1 };
     final Consumer<Integer> divider = ThrowableConsumer.of((t) -> divided[0] = (t / t), (t, e) -> divided[0] = Integer.valueOf(Objects.toString(t, "0")));
     Arrays.stream(anArray).forEach((t) -> {
       divider.accept(t);
-      assertThat(divided[0], is(t == null || t == 0 ? 0 : 1));
+      assertEquals(t == null || t == 0 ? 0 : 1, divided[0]);
     });
   }
 
@@ -58,8 +57,8 @@ public class ThrowableConsumerTest implements ConsumerTest {
     final Consumer<Integer> consumer = divider.andThen((t) -> actual[0] = Objects.toString(t));
     Arrays.stream(anArray).forEach((t) -> {
       consumer.accept(t);
-      assertThat(divided[0], is(t == null || t == 0 ? 0 : 1));
-      assertThat(actual[0], is(Objects.toString(t)));
+      assertEquals(t == null || t == 0 ? 0 : 1, divided[0]);
+      assertEquals(Objects.toString(t), actual[0]);
     });
   }
 
@@ -67,34 +66,34 @@ public class ThrowableConsumerTest implements ConsumerTest {
   public void testOf() {
     List<Integer> result = new ArrayList<>();
     Arrays.stream(anArray).forEach((i) -> ThrowableConsumer.of((t) -> result.add(t / t), ThrowableConsumer.of((t) -> result.add(t - t), (Consumer<Integer>) null)).accept(i));
-    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {0, 1, 1, 1, 1});
+    assertArrayEquals(new Integer[] {0, 1, 1, 1, 1}, result.toArray(Integer[]::new));
 
     result.clear();
     Arrays.stream(anArray).forEach((i) -> ThrowableConsumer.of((Integer t) -> result.add(t / t), ThrowableConsumer.of((Integer t) -> result.add(t - t), (t) -> result.add(Integer.valueOf(Objects.toString(t, "-1"))))).accept(i));
-    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {0, 1, 1, 1, 1, -1});
+    assertArrayEquals(new Integer[] {0, 1, 1, 1, 1, -1}, result.toArray(Integer[]::new));
 
     result.clear();
     Map<Integer, Class<?>> errors = new HashMap<>();
     Arrays.stream(anArray).forEach((i) -> ThrowableConsumer.of((Integer t) -> result.add(t / t), (t, e) -> errors.put(Integer.valueOf(Objects.toString(t, "-1")), e.getClass())).accept(i));
-    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {1, 1, 1, 1});
-    assertArrayEquals(errors.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).map(Map.Entry::getValue).toArray(Class<?>[]::new), new Class<?>[] {NullPointerException.class, ArithmeticException.class});
+    assertArrayEquals(new Integer[] {1, 1, 1, 1}, result.toArray(Integer[]::new));
+    assertArrayEquals(new Class<?>[] {NullPointerException.class, ArithmeticException.class}, errors.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).map(Map.Entry::getValue).toArray(Class<?>[]::new));
   }
 
   @Test
   public void testOrElse() {
     List<Integer> result = new ArrayList<>();
     Arrays.stream(anArray).forEach((i) -> ThrowableConsumer.orElse(i, (t) -> result.add(t / t), ThrowableConsumer.of((t) -> result.add(t - t), (Consumer<Integer>) null)));
-    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {0, 1, 1, 1, 1});
+    assertArrayEquals(new Integer[] {0, 1, 1, 1, 1}, result.toArray(Integer[]::new));
 
     result.clear();
     Arrays.stream(anArray).forEach((i) -> ThrowableConsumer.orElse(i, (t) -> result.add(t / t), ThrowableConsumer.of((Integer t) -> result.add(t - t), (t) -> result.add(Integer.valueOf(Objects.toString(t, "-1"))))));
-    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {0, 1, 1, 1, 1, -1});
+    assertArrayEquals(new Integer[] {0, 1, 1, 1, 1, -1}, result.toArray(Integer[]::new));
 
     result.clear();
     Map<Integer, Class<?>> errors = new HashMap<>();
     Arrays.stream(anArray).forEach((i) -> ThrowableConsumer.orElse(i, (t) -> result.add(t / t), (t, e) -> errors.put(Integer.valueOf(Objects.toString(t, "-1")), e.getClass())));
-    assertArrayEquals(result.toArray(Integer[]::new), new Integer[] {1, 1, 1, 1});
-    assertArrayEquals(errors.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).map(Map.Entry::getValue).toArray(Class<?>[]::new), new Class<?>[] {NullPointerException.class, ArithmeticException.class});
+    assertArrayEquals(new Integer[] {1, 1, 1, 1}, result.toArray(Integer[]::new));
+    assertArrayEquals(new Class<?>[] {NullPointerException.class, ArithmeticException.class}, errors.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).map(Map.Entry::getValue).toArray(Class<?>[]::new));
   }
 
   @Test

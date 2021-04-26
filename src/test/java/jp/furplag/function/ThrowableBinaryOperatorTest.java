@@ -16,33 +16,30 @@
 
 package jp.furplag.function;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.function.BinaryOperator;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ThrowableBinaryOperatorTest {
 
   @Test
   public void test() {
     ThrowableBinaryOperator<Integer> one = (t, u) -> t / u;
-    assertThat(ThrowableBiFunction.of(one, (t, u, e) -> 0).apply(0, 0), is(0));
-    assertThat(ThrowableBiFunction.of(one, (t, u, e) -> 0).apply(1, 0), is(0));
-    assertThat(ThrowableBiFunction.of(one, (t, u, e) -> 0).apply(10, 2), is(5));
-    assertThat(ThrowableBiFunction.of(one, (t, u) -> t + u).apply(2, 0), is(2));
+    assertEquals(0, ThrowableBiFunction.of(one, (t, u, e) -> 0).apply(0, 0));
+    assertEquals(0, ThrowableBiFunction.of(one, (t, u, e) -> 0).apply(1, 0));
+    assertEquals(5, ThrowableBiFunction.of(one, (t, u, e) -> 0).apply(10, 2));
+    assertEquals(2, ThrowableBiFunction.of(one, (t, u) -> t + u).apply(2, 0));
   }
 
   @Test
   public void testMaxBy() {
-    assertThat(ThrowableBinaryOperator.maxBy(Integer::compare).apply(0, 1), is(BinaryOperator.maxBy(Integer::compare).apply(0, 1)));
-    assertThat(ThrowableBinaryOperator.maxBy(Integer::compare).apply(2, 1), is(BinaryOperator.maxBy(Integer::compare).apply(2, 1)));
+    assertEquals(BinaryOperator.maxBy(Integer::compare).apply(0, 1), ThrowableBinaryOperator.maxBy(Integer::compare).apply(0, 1));
+    assertEquals(BinaryOperator.maxBy(Integer::compare).apply(2, 1), ThrowableBinaryOperator.maxBy(Integer::compare).apply(2, 1));
   }
 
   @Test
   public void testMinBy() {
-    assertThat(ThrowableBinaryOperator.minBy(Integer::compare).apply(0, 1), is(BinaryOperator.minBy(Integer::compare).apply(0, 1)));
-    assertThat(ThrowableBinaryOperator.minBy(Integer::compare).apply(2, 1), is(BinaryOperator.minBy(Integer::compare).apply(2, 1)));
+    assertEquals(BinaryOperator.minBy(Integer::compare).apply(0, 1), ThrowableBinaryOperator.minBy(Integer::compare).apply(0, 1));
+    assertEquals(BinaryOperator.minBy(Integer::compare).apply(2, 1), ThrowableBinaryOperator.minBy(Integer::compare).apply(2, 1));
   }
 }

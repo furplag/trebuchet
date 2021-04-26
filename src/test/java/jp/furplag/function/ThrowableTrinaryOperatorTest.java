@@ -16,13 +16,9 @@
 
 package jp.furplag.function;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Comparator;
-
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import jp.furplag.function.Trebuchet.TriFunction;
 
 public class ThrowableTrinaryOperatorTest {
@@ -31,11 +27,11 @@ public class ThrowableTrinaryOperatorTest {
   public void test() {
     TriFunction<Integer, Integer, Integer, Integer> minBy = ThrowableTrinaryOperator.minBy(Comparator.naturalOrder());
     TriFunction<Integer, Integer, Integer, Integer> maxBy = ThrowableTrinaryOperator.maxBy(Comparator.naturalOrder());
-    assertThat(minBy.apply(1, 2, 3), is(1));
-    assertThat(maxBy.apply(1, 2, 3), is(3));
+    assertEquals(1, minBy.apply(1, 2, 3));
+    assertEquals(3, maxBy.apply(1, 2, 3));
     TriFunction<Integer, Integer, Integer, Integer> minByR = ThrowableTrinaryOperator.minBy(Comparator.reverseOrder());
     TriFunction<Integer, Integer, Integer, Integer> maxByR = ThrowableTrinaryOperator.maxBy(Comparator.reverseOrder());
-    assertThat(minByR.apply(1, 2, 3), is(3));
-    assertThat(maxByR.apply(1, 2, 3), is(1));
+    assertEquals(3, minByR.apply(1, 2, 3));
+    assertEquals(1, maxByR.apply(1, 2, 3));
   }
 }
